@@ -1,11 +1,8 @@
 import type { ReactNode } from 'react';
-import { ExternalLink } from 'lucide-react';
 
 import { Banner } from './components/Banner';
-import { ComplianceTrend } from './components/ComplianceTrend';
 import { HealthTable } from './components/HealthTable';
 import { TargetRow } from './components/TargetRow';
-import { formatRelativeTime } from './lib/format';
 import { useHealthData } from './hooks/useHealthData';
 import { useStatusData } from './hooks/useStatusData';
 
@@ -13,39 +10,17 @@ function App(): ReactNode {
   const status = useStatusData();
   const health = useHealthData();
   const loadedTargets = status.data?.targets ?? [];
-  const liveSource = status.source === 'live' && health.source === 'live';
 
   return (
     <div className="min-h-screen">
       <header className="border-b-3 border-ink bg-paper">
-        <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-5 md:flex-row md:items-end md:justify-between md:px-6">
-          <div className="min-w-0">
-            <a
-              className="focus-ring inline-flex items-center gap-1 font-display text-xs font-bold uppercase opacity-70 hover:opacity-100"
-              href="https://theprawnprojects.vercel.app/"
-              target="_blank"
-              rel="noreferrer"
-            >
-              The Prawn Projects
-              <ExternalLink aria-hidden="true" className="h-3 w-3" />
-            </a>
-            <h1 className="mt-2 max-w-full font-display text-[clamp(2.05rem,9vw,5.5rem)] font-bold uppercase leading-none tracking-normal sm:text-[clamp(2.3rem,7vw,5.5rem)]">
-              The Prawn{' '}
-              <span className="inline-block -skew-x-6 border-3 border-ink bg-neo px-2 shadow-hardSm">Status</span>
-            </h1>
-          </div>
-          <div className="grid grid-cols-2 border-3 border-ink bg-paper text-right font-display text-xs font-bold uppercase shadow-hardSm tabular sm:min-w-[320px]">
-            <div className="border-r-3 border-ink px-3 py-2">
-              Data
-              <br />
-              <strong>{liveSource ? 'Live' : status.source ?? 'Loading'}</strong>
-            </div>
-            <div className="px-3 py-2">
-              Last Check
-              <br />
-              <strong>{formatRelativeTime(status.data?.generated_at ?? null)}</strong>
-            </div>
-          </div>
+        <div className="mx-auto flex max-w-7xl items-center justify-center overflow-hidden px-4 py-6 md:px-6 md:py-8">
+          <h1 className="w-full whitespace-nowrap text-center font-display text-[8vw] font-bold uppercase leading-none tracking-normal sm:text-5xl md:text-7xl lg:text-8xl">
+            The Prawn{' '}
+            <span className="ml-1 inline-block -skew-x-6 border-3 border-ink bg-neo px-2 shadow-hardSm sm:ml-4">
+              Status
+            </span>
+          </h1>
         </div>
       </header>
 
@@ -69,18 +44,10 @@ function App(): ReactNode {
             <div>
               <h2 className="font-display text-2xl font-bold uppercase">Deployments</h2>
               <p className="font-display text-xs font-bold uppercase tabular opacity-70">
-                {loadedTargets.length} targets - sampled every ~15 min - page refreshes every 60s
+                {loadedTargets.length} targets - scheduled ~15 min - stale after 45 min - page refreshes every 60s
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
-              <a
-                className="focus-ring inline-flex h-9 items-center justify-center gap-2 border-3 border-ink bg-paper px-3 font-display text-xs font-bold uppercase shadow-hardSm hover:bg-neo"
-                href="https://theprawnprojects.vercel.app/"
-                target="_blank"
-                rel="noreferrer"
-              >
-                Projects
-              </a>
               <a
                 className="focus-ring inline-flex h-9 items-center justify-center gap-2 border-3 border-ink bg-paper px-3 font-display text-xs font-bold uppercase shadow-hardSm hover:bg-neo"
                 href="https://github.com/hongyime/theprawnstatus"
@@ -112,15 +79,28 @@ function App(): ReactNode {
           )}
         </section>
 
-        <div className="grid grid-cols-1 gap-5 xl:grid-cols-[1fr_320px]">
-          <HealthTable report={health.report} loading={health.loading} stale={health.stale} />
-          <ComplianceTrend history={health.history} />
-        </div>
+        <HealthTable report={health.report} history={health.history} loading={health.loading} stale={health.stale} />
       </main>
 
-      <footer className="border-t-3 border-ink bg-ink px-4 py-5 text-paper md:px-6">
-        <div className="mx-auto max-w-7xl font-display text-xs font-bold uppercase">
-          The Prawn Status is an extension of The Prawn Projects. Uptime is indicative, not an SLA.
+      <footer className="mx-auto max-w-7xl border-t-3 border-ink px-4 pb-12 pt-8 md:px-6">
+        <div className="flex flex-col items-center justify-center gap-4 text-center">
+          <h4 className="font-display text-3xl font-bold uppercase md:text-4xl">Get In Touch</h4>
+          <div className="flex flex-col items-center gap-2">
+            <a
+              className="focus-ring border-b-3 border-ink font-display text-base font-bold uppercase hover:bg-neo"
+              href="mailto:hello@hong-yi.me"
+            >
+              hello@hong-yi.me
+            </a>
+            <a
+              className="focus-ring border-b-3 border-ink font-display text-base font-bold uppercase hover:bg-neo"
+              href="https://www.hong-yi.me"
+              target="_blank"
+              rel="noreferrer"
+            >
+              www.hong-yi.me
+            </a>
+          </div>
         </div>
       </footer>
     </div>

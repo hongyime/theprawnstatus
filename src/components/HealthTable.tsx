@@ -1,7 +1,7 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { ArrowUpDown, Filter, Layers3 } from 'lucide-react';
 
-import type { HealthReport, RepoHealth } from '@shared/types';
+import type { HealthHistoryLine, HealthReport, RepoHealth } from '@shared/types';
 import { formatPercent, formatRelativeTime } from '@/lib/format';
 import { ShellButton } from './primitives';
 
@@ -19,6 +19,25 @@ const CHECK_LABELS: Record<string, string> = {
 
 function checkLabel(check: string): string {
   return CHECK_LABELS[check] ?? check.replaceAll('_', ' ');
+}
+
+function pointsFor(history: HealthHistoryLine[]): string {
+  if (history.length === 0) {
+    return '';
+  }
+
+  if (history.length === 1) {
+    const y = 100 - history[0].org_score * 100;
+    return `0,${y} 100,${y}`;
+  }
+
+  return history
+    .map((item, index) => {
+      const x = (index / (history.length - 1)) * 100;
+      const y = 100 - item.org_score * 100;
+      return `${x},${y}`;
+    })
+    .join(' ');
 }
 
 function repoScore(repo: RepoHealth): number {
@@ -52,12 +71,83 @@ function groupRows(rows: RepoHealth[], mode: GroupMode): Array<[string, RepoHeal
   return [...groups.entries()].sort((a, b) => a[0].localeCompare(b[0]));
 }
 
+function ScoreTrend({ history }: { history: HealthHistoryLine[] }): ReactNode {
+  const recent = history.slice(-90);
+  const last = recent.at(-1);
+  const pointCount = recent.length;
+
+  return (
+    <div className="min-w-0 border-3 border-ink bg-paper p-2 shadow-hardSm lg:w-56">
+      <div className="mb-1 flex items-center justify-between gap-2 font-display text-[10px] font-bold uppercase tabular">
+        <span>{pointCount === 0 ? 'No trend yet' : `${pointCount} point${pointCount === 1 ? '' : 's'}`}</span>
+        <span>{formatPercent(last?.org_score ?? null)}</span>
+      </div>
+      <svg
+        role="img"
+        aria-label={`Repo score trend with ${pointCount} data point${pointCount === 1 ? '' : 's'}.`}
+        viewBox="0 0 100 100"
+        preserveAspectRatio="none"
+        className="h-12 w-full border-2 border-ink bg-paper"
+      >
+        <polyline points={pointsFor(recent)} fill="none" stroke="#000000" strokeWidth="4" vectorEffect="non-scaling-stroke" />
+        {last !== undefined ? (
+          <circle
+            cx={recent.length === 1 ? 50 : 98}
+            cy={100 - last.org_score * 100}
+            r="3"
+            fill="#ffffff"
+            stroke="#000000"
+            strokeWidth="3"
+            vectorEffect="non-scaling-stroke"
+          />
+        ) : (
+          <line x1="0" y1="100" x2="100" y2="100" stroke="#000000" strokeWidth="4" vectorEffect="non-scaling-stroke" />
+        )}
+      </svg>
+    </div>
+  );
+}
+
+function RepoCard({ repo, stale }: { repo: RepoHealth; stale: boolean }): ReactNode {
+  return (
+    <article className="flex min-h-[118px] flex-col justify-between gap-3 border-3 border-ink bg-paper p-3 shadow-hardSm">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0 font-display text-base font-bold uppercase leading-tight">
+          <span className="block truncate">{repo.name}</span>
+        </div>
+        <div className="shrink-0 border-2 border-ink bg-neo px-2 py-0.5 font-display text-xs font-bold tabular">
+          {stale ? '-' : `${repo.score}/${repo.max}`}
+        </div>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {repo.fail.length === 0 ? (
+          <span className="border-2 border-ink bg-up px-2 py-0.5 font-display text-[10px] font-bold uppercase">
+            passing
+          </span>
+        ) : (
+          repo.fail.map((check) => (
+            <span
+              key={check}
+              title={check}
+              className="border-2 border-ink bg-down px-2 py-0.5 font-display text-[10px] font-bold uppercase text-paper"
+            >
+              {checkLabel(check)}
+            </span>
+          ))
+        )}
+      </div>
+    </article>
+  );
+}
+
 export function HealthTable({
   report,
+  history,
   loading,
   stale,
 }: {
   report: HealthReport | null;
+  history: HealthHistoryLine[];
   loading: boolean;
   stale: boolean;
 }): ReactNode {
@@ -90,16 +180,17 @@ export function HealthTable({
   }
 
   return (
-    <section className="space-y-4">
-      <div className="flex flex-col gap-3 border-3 border-ink bg-paper p-3 shadow-hard lg:flex-row lg:items-center lg:justify-between">
-        <div>
+    <section className="space-y-3">
+      <div className="grid gap-3 border-3 border-ink bg-paper p-3 shadow-hard lg:grid-cols-[minmax(0,1fr)_224px_auto] lg:items-center">
+        <div className="min-w-0">
           <h2 className="font-display text-2xl font-bold uppercase">Repo Standards</h2>
           <p className="mt-1 font-display text-xs font-bold uppercase tabular opacity-70">
-            {stale ? 'stale' : formatPercent(report.org_score)} score - {report.repos.length} repos -{' '}
-            {failingCount} need fixes - checked {formatRelativeTime(report.generated_at)}
+            {stale ? 'stale' : formatPercent(report.org_score)} score - {report.repos.length} repos - {failingCount}{' '}
+            need fixes - checked {formatRelativeTime(report.generated_at)}
           </p>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <ScoreTrend history={history} />
+        <div className="flex flex-wrap gap-2 lg:justify-end">
           <ShellButton
             type="button"
             aria-pressed={nonCompliantOnly}
@@ -131,40 +222,13 @@ export function HealthTable({
         </div>
       ) : (
         groupRows(rows, group).map(([label, groupedRows]) => (
-          <div key={label} className="border-3 border-ink bg-paper shadow-hard">
+          <div key={label} className="space-y-3">
             <div className="border-b-3 border-ink bg-neo px-3 py-2 font-display text-xs font-bold uppercase">
               {checkLabel(label)} - {groupedRows.length}
             </div>
-            <div className="divide-y-3 divide-ink">
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
               {groupedRows.map((repo) => (
-                <div
-                  key={`${label}-${repo.name}`}
-                  className="grid grid-cols-1 gap-2 px-3 py-2 md:grid-cols-[minmax(150px,1fr)_72px_minmax(200px,2fr)] md:items-center"
-                >
-                  <div className="min-w-0 font-display text-base font-bold uppercase">
-                    <span className="block truncate">{repo.name}</span>
-                  </div>
-                  <div className="font-display text-sm font-bold tabular">
-                    {stale ? '-' : `${repo.score}/${repo.max}`}
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {repo.fail.length === 0 ? (
-                      <span className="border-2 border-ink bg-up px-2 py-0.5 font-display text-[10px] font-bold uppercase">
-                        passing
-                      </span>
-                    ) : (
-                      repo.fail.map((check) => (
-                        <span
-                          key={check}
-                          title={check}
-                          className="border-2 border-ink bg-down px-2 py-0.5 font-display text-[10px] font-bold uppercase text-paper"
-                        >
-                          {checkLabel(check)}
-                        </span>
-                      ))
-                    )}
-                  </div>
-                </div>
+                <RepoCard key={`${label}-${repo.name}`} repo={repo} stale={stale} />
               ))}
             </div>
           </div>
