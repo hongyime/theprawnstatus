@@ -55,9 +55,9 @@ function sortedRows(rows: RepoHealth[], sort: SortMode): RepoHealth[] {
   });
 }
 
-function groupRows(rows: RepoHealth[], mode: GroupMode): Array<[string, RepoHealth[]]> {
+function groupRows(rows: RepoHealth[], mode: GroupMode, flatLabel: string): Array<[string, RepoHealth[]]> {
   if (mode === 'none') {
-    return [['All repos', rows]];
+    return [[flatLabel, rows]];
   }
 
   const groups = new Map<string, RepoHealth[]>();
@@ -159,6 +159,7 @@ export function HealthTable({
   const [sort, setSort] = useState<SortMode>('score');
   const [group, setGroup] = useState<GroupMode>('none');
   const failingCount = report?.repos.filter((repo) => repo.fail.length > 0).length ?? 0;
+  const flatGroupLabel = nonCompliantOnly ? 'Repos needing fixes' : 'All repos';
 
   const rows = useMemo(() => {
     if (report === null) {
@@ -183,14 +184,18 @@ export function HealthTable({
     );
   }
 
+  const scopeSummary = nonCompliantOnly
+    ? `showing ${failingCount}/${report.repos.length} repos - fixes only`
+    : `showing all ${report.repos.length} repos - ${failingCount} need fixes`;
+
   return (
     <section className="space-y-3">
       <div className="grid gap-3 border-3 border-ink bg-paper p-3 shadow-hard lg:grid-cols-[minmax(0,1fr)_208px_auto] lg:items-center">
         <div className="min-w-0">
           <h2 className="font-display text-2xl font-bold uppercase">Repo Standards</h2>
           <p className="mt-1 font-display text-xs font-bold uppercase tabular opacity-70">
-            {stale ? 'stale' : formatPercent(report.org_score)} score - {report.repos.length} repos - {failingCount}{' '}
-            need fixes - checked {formatRelativeTime(report.generated_at)}
+            {stale ? 'stale' : formatPercent(report.org_score)} score - {scopeSummary} - checked{' '}
+            {formatRelativeTime(report.generated_at)}
           </p>
         </div>
         <ScoreTrend history={history} />
@@ -198,10 +203,11 @@ export function HealthTable({
           <ShellButton
             type="button"
             aria-pressed={nonCompliantOnly}
+            className={nonCompliantOnly ? 'bg-neo shadow-none translate-x-[2px] translate-y-[3px]' : ''}
             onClick={() => setNonCompliantOnly((value) => !value)}
           >
             <Filter aria-hidden="true" className="h-4 w-4" />
-            Needs Fixes
+            {nonCompliantOnly ? 'Fixes Only' : 'All Repos'}
           </ShellButton>
           <ShellButton
             type="button"
@@ -225,7 +231,7 @@ export function HealthTable({
           All repos pass this report
         </div>
       ) : (
-        groupRows(rows, group).map(([label, groupedRows]) => (
+        groupRows(rows, group, flatGroupLabel).map(([label, groupedRows]) => (
           <div key={label} className="space-y-3">
             <div className="border-b-3 border-ink bg-neo px-3 py-2 font-display text-xs font-bold uppercase">
               {checkLabel(label)} - {groupedRows.length}
