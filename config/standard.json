@@ -1,0 +1,68 @@
+{
+  "standard_version": "1.0.0",
+  "source": "hongyime/sourcerepo STANDARD.md",
+  "known_default_description": "Give me 1 ⭐ if it's cool.",
+  "checks": [
+    {
+      "id": "license_is_apache_2",
+      "weight": 1,
+      "severity": "high"
+    },
+    {
+      "id": "notice_present",
+      "weight": 1,
+      "severity": "high",
+      "params": {
+        "organisation": "The Prawn Organisation"
+      }
+    },
+    {
+      "id": "description_is_not_default",
+      "weight": 1,
+      "severity": "medium"
+    },
+    {
+      "id": "topics_min_3",
+      "weight": 1,
+      "severity": "low",
+      "params": {
+        "min": 3
+      }
+    },
+    {
+      "id": "readme_min_bytes",
+      "weight": 1,
+      "severity": "medium",
+      "params": {
+        "min": 500
+      }
+    },
+    {
+      "id": "security_policy_present",
+      "weight": 1,
+      "severity": "high"
+    },
+    {
+      "id": "discussions_matches_standard",
+      "weight": 1,
+      "severity": "low",
+      "params": {
+        "expected": true
+      }
+    },
+    {
+      "id": "default_branch_matches_standard",
+      "weight": 1,
+      "severity": "medium",
+      "params": {
+        "expected": "main"
+      }
+    },
+    {
+      "id": "not_unintentionally_archived",
+      "weight": 1,
+      "severity": "medium"
+    }
+  ],
+  "exempt": {}
+}
