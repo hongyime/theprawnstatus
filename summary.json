@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-08-10T06:57:37.020Z",
+  "generated_at": "2026-08-10T07:59:34.873Z",
   "window_days": 90,
   "schema": 1,
   "targets": [
@@ -10,40 +10,40 @@
       "current": {
         "state": "up",
         "status": 200,
-        "ms": 273,
-        "checked_at": "2026-08-10T06:57:37.293Z"
+        "ms": 1012,
+        "checked_at": "2026-08-10T07:59:35.888Z"
       },
       "uptime_90d": 1,
-      "p50_ms": 356,
+      "p50_ms": 461,
       "p95_ms": 788,
       "days": [
         {
           "d": "2026-08-10",
-          "n": 8,
-          "ok": 8,
-          "p50": 356
+          "n": 9,
+          "ok": 9,
+          "p50": 461
         }
       ]
     },
     {
-      "id": "www",
-      "name": "Hong Yi Home",
-      "url": "https://www.hong-yi.me",
+      "id": "gmaplists",
+      "name": "Gmap Lists",
+      "url": "https://gmaplists-one.vercel.app",
       "current": {
         "state": "up",
         "status": 200,
-        "ms": 396,
-        "checked_at": "2026-08-10T06:57:38.069Z"
+        "ms": 630,
+        "checked_at": "2026-08-10T07:59:35.705Z"
       },
       "uptime_90d": 1,
-      "p50_ms": 313,
-      "p95_ms": 457,
+      "p50_ms": 630,
+      "p95_ms": 630,
       "days": [
         {
           "d": "2026-08-10",
-          "n": 8,
-          "ok": 8,
-          "p50": 313
+          "n": 1,
+          "ok": 1,
+          "p50": 630
         }
       ]
     },
@@ -54,18 +54,18 @@
       "current": {
         "state": "up",
         "status": 200,
-        "ms": 252,
-        "checked_at": "2026-08-10T06:57:37.307Z"
+        "ms": 457,
+        "checked_at": "2026-08-10T07:59:35.536Z"
       },
       "uptime_90d": 1,
-      "p50_ms": 443,
+      "p50_ms": 457,
       "p95_ms": 493,
       "days": [
         {
           "d": "2026-08-10",
-          "n": 8,
-          "ok": 8,
-          "p50": 443
+          "n": 9,
+          "ok": 9,
+          "p50": 457
         }
       ]
     },
@@ -76,8 +76,8 @@
       "current": {
         "state": "up",
         "status": 200,
-        "ms": 231,
-        "checked_at": "2026-08-10T06:57:37.289Z"
+        "ms": 331,
+        "checked_at": "2026-08-10T07:59:35.416Z"
       },
       "uptime_90d": 1,
       "p50_ms": 365,
@@ -85,9 +85,97 @@
       "days": [
         {
           "d": "2026-08-10",
-          "n": 8,
-          "ok": 8,
+          "n": 9,
+          "ok": 9,
           "p50": 365
+        }
+      ]
+    },
+    {
+      "id": "sgbuslaobu",
+      "name": "SG Bus Lao Bu",
+      "url": "https://sgbuslaobu.hong-yi.me",
+      "current": {
+        "state": "up",
+        "status": 200,
+        "ms": 1678,
+        "checked_at": "2026-08-10T07:59:36.767Z"
+      },
+      "uptime_90d": 1,
+      "p50_ms": 1678,
+      "p95_ms": 1678,
+      "days": [
+        {
+          "d": "2026-08-10",
+          "n": 1,
+          "ok": 1,
+          "p50": 1678
+        }
+      ]
+    },
+    {
+      "id": "sgcampuscore",
+      "name": "SG Campus Core",
+      "url": "https://sgcampuscore.hong-yi.me",
+      "current": {
+        "state": "up",
+        "status": 200,
+        "ms": 1426,
+        "checked_at": "2026-08-10T07:59:36.843Z"
+      },
+      "uptime_90d": 1,
+      "p50_ms": 1426,
+      "p95_ms": 1426,
+      "days": [
+        {
+          "d": "2026-08-10",
+          "n": 1,
+          "ok": 1,
+          "p50": 1426
+        }
+      ]
+    },
+    {
+      "id": "sgshiok",
+      "name": "SG SHIOK",
+      "url": "https://sgshiok.hong-yi.me",
+      "current": {
+        "state": "up",
+        "status": 200,
+        "ms": 1187,
+        "checked_at": "2026-08-10T07:59:36.724Z"
+      },
+      "uptime_90d": 1,
+      "p50_ms": 1187,
+      "p95_ms": 1187,
+      "days": [
+        {
+          "d": "2026-08-10",
+          "n": 1,
+          "ok": 1,
+          "p50": 1187
+        }
+      ]
+    },
+    {
+      "id": "sgstylesnap",
+      "name": "SG Style Snap",
+      "url": "https://sgstylesnap.hong-yi.me",
+      "current": {
+        "state": "up",
+        "status": 200,
+        "ms": 729,
+        "checked_at": "2026-08-10T07:59:36.434Z"
+      },
+      "uptime_90d": 1,
+      "p50_ms": 729,
+      "p95_ms": 729,
+      "days": [
+        {
+          "d": "2026-08-10",
+          "n": 1,
+          "ok": 1,
+          "p50": 729
         }
       ]
     },
@@ -98,18 +186,18 @@
       "current": {
         "state": "up",
         "status": 200,
-        "ms": 438,
-        "checked_at": "2026-08-10T06:57:37.497Z"
+        "ms": 1203,
+        "checked_at": "2026-08-10T07:59:37.091Z"
       },
       "uptime_90d": 1,
-      "p50_ms": 525,
+      "p50_ms": 539,
       "p95_ms": 525,
       "days": [
         {
           "d": "2026-08-10",
-          "n": 8,
-          "ok": 8,
-          "p50": 525
+          "n": 9,
+          "ok": 9,
+          "p50": 539
         }
       ]
     },
@@ -120,18 +208,18 @@
       "current": {
         "state": "up",
         "status": 200,
-        "ms": 279,
-        "checked_at": "2026-08-10T06:57:37.339Z"
+        "ms": 448,
+        "checked_at": "2026-08-10T07:59:36.883Z"
       },
       "uptime_90d": 1,
-      "p50_ms": 283,
+      "p50_ms": 448,
       "p95_ms": 516,
       "days": [
         {
           "d": "2026-08-10",
-          "n": 8,
-          "ok": 8,
-          "p50": 283
+          "n": 9,
+          "ok": 9,
+          "p50": 448
         }
       ]
     },
@@ -142,18 +230,18 @@
       "current": {
         "state": "up",
         "status": 200,
-        "ms": 248,
-        "checked_at": "2026-08-10T06:57:37.537Z"
+        "ms": 784,
+        "checked_at": "2026-08-10T07:59:37.507Z"
       },
       "uptime_90d": 1,
-      "p50_ms": 241,
+      "p50_ms": 248,
       "p95_ms": 495,
       "days": [
         {
           "d": "2026-08-10",
-          "n": 8,
-          "ok": 8,
-          "p50": 241
+          "n": 9,
+          "ok": 9,
+          "p50": 248
         }
       ]
     },
@@ -164,18 +252,18 @@
       "current": {
         "state": "up",
         "status": 200,
-        "ms": 4147,
-        "checked_at": "2026-08-10T06:57:41.440Z"
+        "ms": 4574,
+        "checked_at": "2026-08-10T07:59:41.342Z"
       },
       "uptime_90d": 1,
-      "p50_ms": 680,
+      "p50_ms": 4147,
       "p95_ms": 680,
       "days": [
         {
           "d": "2026-08-10",
-          "n": 8,
-          "ok": 8,
-          "p50": 680
+          "n": 9,
+          "ok": 9,
+          "p50": 4147
         }
       ]
     },
@@ -186,18 +274,18 @@
       "current": {
         "state": "up",
         "status": 200,
-        "ms": 150,
-        "checked_at": "2026-08-10T06:57:37.457Z"
+        "ms": 412,
+        "checked_at": "2026-08-10T07:59:37.256Z"
       },
       "uptime_90d": 1,
-      "p50_ms": 202,
+      "p50_ms": 204,
       "p95_ms": 427,
       "days": [
         {
           "d": "2026-08-10",
-          "n": 8,
-          "ok": 8,
-          "p50": 202
+          "n": 9,
+          "ok": 9,
+          "p50": 204
         }
       ]
     },
@@ -208,18 +296,18 @@
       "current": {
         "state": "up",
         "status": 200,
-        "ms": 369,
-        "checked_at": "2026-08-10T06:57:37.709Z"
+        "ms": 339,
+        "checked_at": "2026-08-10T07:59:37.221Z"
       },
       "uptime_90d": 1,
-      "p50_ms": 230,
+      "p50_ms": 339,
       "p95_ms": 434,
       "days": [
         {
           "d": "2026-08-10",
-          "n": 8,
-          "ok": 8,
-          "p50": 230
+          "n": 9,
+          "ok": 9,
+          "p50": 339
         }
       ]
     },
@@ -230,18 +318,18 @@
       "current": {
         "state": "up",
         "status": 200,
-        "ms": 155,
-        "checked_at": "2026-08-10T06:57:37.612Z"
+        "ms": 486,
+        "checked_at": "2026-08-10T07:59:37.577Z"
       },
       "uptime_90d": 1,
-      "p50_ms": 155,
+      "p50_ms": 271,
       "p95_ms": 132,
       "days": [
         {
           "d": "2026-08-10",
-          "n": 8,
-          "ok": 8,
-          "p50": 155
+          "n": 9,
+          "ok": 9,
+          "p50": 271
         }
       ]
     },
@@ -252,18 +340,18 @@
       "current": {
         "state": "up",
         "status": 200,
-        "ms": 222,
-        "checked_at": "2026-08-10T06:57:37.719Z"
+        "ms": 734,
+        "checked_at": "2026-08-10T07:59:37.956Z"
       },
       "uptime_90d": 1,
-      "p50_ms": 314,
+      "p50_ms": 322,
       "p95_ms": 449,
       "days": [
         {
           "d": "2026-08-10",
-          "n": 8,
-          "ok": 8,
-          "p50": 314
+          "n": 9,
+          "ok": 9,
+          "p50": 322
         }
       ]
     },
@@ -274,18 +362,62 @@
       "current": {
         "state": "up",
         "status": 200,
-        "ms": 136,
-        "checked_at": "2026-08-10T06:57:37.673Z"
+        "ms": 223,
+        "checked_at": "2026-08-10T07:59:37.479Z"
       },
       "uptime_90d": 1,
-      "p50_ms": 136,
+      "p50_ms": 184,
       "p95_ms": 184,
       "days": [
         {
           "d": "2026-08-10",
-          "n": 8,
-          "ok": 8,
-          "p50": 136
+          "n": 9,
+          "ok": 9,
+          "p50": 184
+        }
+      ]
+    },
+    {
+      "id": "theprawnredirects",
+      "name": "The Prawn Redirects",
+      "url": "https://at.hong-yi.me",
+      "current": {
+        "state": "down",
+        "status": 404,
+        "ms": 44,
+        "checked_at": "2026-08-10T07:59:42.108Z"
+      },
+      "uptime_90d": 0,
+      "p50_ms": 44,
+      "p95_ms": null,
+      "days": [
+        {
+          "d": "2026-08-10",
+          "n": 1,
+          "ok": 0,
+          "p50": 44
+        }
+      ]
+    },
+    {
+      "id": "theprawnstatus",
+      "name": "The Prawn Status",
+      "url": "https://theprawnstatus.vercel.app",
+      "current": {
+        "state": "up",
+        "status": 200,
+        "ms": 414,
+        "checked_at": "2026-08-10T07:59:37.922Z"
+      },
+      "uptime_90d": 1,
+      "p50_ms": 414,
+      "p95_ms": 414,
+      "days": [
+        {
+          "d": "2026-08-10",
+          "n": 1,
+          "ok": 1,
+          "p50": 414
         }
       ]
     },
@@ -296,8 +428,8 @@
       "current": {
         "state": "up",
         "status": 200,
-        "ms": 161,
-        "checked_at": "2026-08-10T06:57:37.773Z"
+        "ms": 82,
+        "checked_at": "2026-08-10T07:59:37.658Z"
       },
       "uptime_90d": 1,
       "p50_ms": 181,
@@ -305,9 +437,53 @@
       "days": [
         {
           "d": "2026-08-10",
-          "n": 8,
-          "ok": 8,
+          "n": 9,
+          "ok": 9,
           "p50": 181
+        }
+      ]
+    },
+    {
+      "id": "ticketremaster",
+      "name": "Ticket Remaster",
+      "url": "https://ticketremaster.hong-yi.me",
+      "current": {
+        "state": "up",
+        "status": 200,
+        "ms": 554,
+        "checked_at": "2026-08-10T07:59:38.212Z"
+      },
+      "uptime_90d": 1,
+      "p50_ms": 554,
+      "p95_ms": 554,
+      "days": [
+        {
+          "d": "2026-08-10",
+          "n": 1,
+          "ok": 1,
+          "p50": 554
+        }
+      ]
+    },
+    {
+      "id": "validatenric",
+      "name": "Validate NRIC",
+      "url": "https://validatenric.hong-yi.me",
+      "current": {
+        "state": "up",
+        "status": 200,
+        "ms": 1405,
+        "checked_at": "2026-08-10T07:59:39.327Z"
+      },
+      "uptime_90d": 1,
+      "p50_ms": 1405,
+      "p95_ms": 1405,
+      "days": [
+        {
+          "d": "2026-08-10",
+          "n": 1,
+          "ok": 1,
+          "p50": 1405
         }
       ]
     }
