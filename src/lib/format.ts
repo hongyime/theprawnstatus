@@ -34,6 +34,24 @@ export function formatRelativeTime(value: string | null): string {
   });
 }
 
+export function formatCompactDateTime(value: string | null): string {
+  if (value === null) {
+    return '-';
+  }
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return '-';
+  }
+
+  return date.toLocaleString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  });
+}
+
 export function ageMinutes(value: string | null, now = new Date()): number | null {
   if (value === null) {
     return null;

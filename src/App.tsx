@@ -99,7 +99,7 @@ function App(): ReactNode {
               No deployment samples yet
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
               {loadedTargets.map((target) => (
                 <TargetRow
                   key={target.id}
