@@ -1,5 +1,9 @@
 name: uptime
 
+# Generated status data is committed to the orphan `data` branch, not `main`.
+# Keep `main` for source/config only; the guard-data-branch workflow blocks
+# accidental merges that bring `summary.json`, `health.json`, or `history/`
+# into `main`.
 on:
   schedule:
     - cron: '3,18,33,48 * * * *'

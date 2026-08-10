@@ -1,0 +1,38 @@
+name: guard data branch
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  prevent-data-branch-merge:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+
+      - name: Block generated data files on main
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          bad=()
+          for path in summary.json health.json health-history.jsonl history; do
+            if [ -e "$path" ]; then
+              bad+=("$path")
+            fi
+          done
+
+          if [ "${#bad[@]}" -gt 0 ]; then
+            printf 'Generated data-branch files were found on main:\n'
+            printf ' - %s\n' "${bad[@]}"
+            printf '\nThe data branch is generated storage for uptime and repo-health data.\n'
+            printf 'Do not merge data into main. Revert the merge or remove these files.\n'
+            exit 1
+          fi

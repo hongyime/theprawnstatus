@@ -47,6 +47,8 @@ Generated status data lives on the orphan `data` branch:
 
 Do not merge `data` into `main`.
 
+The `guard data branch` GitHub Actions workflow fails if generated data files appear on `main`.
+
 ## Health token
 
 The health checker needs a read-only fine-grained GitHub PAT stored as `HEALTH_PAT`.
