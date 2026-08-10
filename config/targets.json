@@ -1,0 +1,72 @@
+[
+  {
+    "id": "dejavista",
+    "name": "DejaVista",
+    "url": "https://dejavista.hong-yi.me"
+  },
+  {
+    "id": "pocketclawd",
+    "name": "PocketClawd",
+    "url": "https://pocketclawd.hong-yi.me"
+  },
+  {
+    "id": "pokemonpacks",
+    "name": "Pokemon Packs",
+    "url": "https://pokemonpacks.hong-yi.me"
+  },
+  {
+    "id": "smucourses",
+    "name": "SMU Courses",
+    "url": "https://smucourses.hong-yi.me"
+  },
+  {
+    "id": "smuseats",
+    "name": "SMU Seats",
+    "url": "https://smuseats.hong-yi.me"
+  },
+  {
+    "id": "spritescavenger",
+    "name": "Sprite Scavenger",
+    "url": "https://spritescavenger.hong-yi.me"
+  },
+  {
+    "id": "swiperboxd",
+    "name": "Swiperboxd",
+    "url": "https://swiperboxd.hong-yi.me"
+  },
+  {
+    "id": "theprawnfeeds",
+    "name": "The Prawn Feeds",
+    "url": "https://theprawnfeeds.hong-yi.me"
+  },
+  {
+    "id": "theprawngame",
+    "name": "The Prawn Game",
+    "url": "https://theprawngame.hong-yi.me"
+  },
+  {
+    "id": "theprawnhome",
+    "name": "The Prawn Home",
+    "url": "https://theprawnhome.hong-yi.me"
+  },
+  {
+    "id": "theprawnhunter",
+    "name": "The Prawn Hunter",
+    "url": "https://theprawnhunter.hong-yi.me"
+  },
+  {
+    "id": "theprawnprojects",
+    "name": "The Prawn Projects",
+    "url": "https://theprawnprojects.hong-yi.me"
+  },
+  {
+    "id": "theprawnsurprise",
+    "name": "The Prawn Surprise",
+    "url": "https://theprawnsurprise.hong-yi.me"
+  },
+  {
+    "id": "www",
+    "name": "Hong Yi Home",
+    "url": "https://www.hong-yi.me"
+  }
+]
