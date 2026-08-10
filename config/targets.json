@@ -5,6 +5,11 @@
     "url": "https://dejavista.hong-yi.me"
   },
   {
+    "id": "gmaplists",
+    "name": "Gmap Lists",
+    "url": "https://gmaplist.hong-yi.me"
+  },
+  {
     "id": "pocketclawd",
     "name": "PocketClawd",
     "url": "https://pocketclawd.hong-yi.me"
@@ -13,6 +18,26 @@
     "id": "pokemonpacks",
     "name": "Pokemon Packs",
     "url": "https://pokemonpacks.hong-yi.me"
+  },
+  {
+    "id": "sgbuslaobu",
+    "name": "SG Bus Lao Bu",
+    "url": "https://sgbuslaobu.hong-yi.me"
+  },
+  {
+    "id": "sgcampuscore",
+    "name": "SG Campus Core",
+    "url": "https://sgcampuscore.hong-yi.me"
+  },
+  {
+    "id": "sgshiok",
+    "name": "SG SHIOK",
+    "url": "https://sgshiok.hong-yi.me"
+  },
+  {
+    "id": "sgstylesnap",
+    "name": "SG Style Snap",
+    "url": "https://sgstylesnap.hong-yi.me"
   },
   {
     "id": "smucourses",
@@ -60,13 +85,28 @@
     "url": "https://theprawnprojects.hong-yi.me"
   },
   {
+    "id": "theprawnredirects",
+    "name": "The Prawn Redirects",
+    "url": "https://at.hong-yi.me"
+  },
+  {
+    "id": "theprawnstatus",
+    "name": "The Prawn Status",
+    "url": "https://theprawnstatus.vercel.app"
+  },
+  {
     "id": "theprawnsurprise",
     "name": "The Prawn Surprise",
     "url": "https://theprawnsurprise.hong-yi.me"
   },
   {
-    "id": "www",
-    "name": "Hong Yi Home",
-    "url": "https://www.hong-yi.me"
+    "id": "ticketremaster",
+    "name": "Ticket Remaster",
+    "url": "https://ticketremaster.hong-yi.me"
+  },
+  {
+    "id": "validatenric",
+    "name": "Validate NRIC",
+    "url": "https://validatenric.hong-yi.me"
   }
 ]

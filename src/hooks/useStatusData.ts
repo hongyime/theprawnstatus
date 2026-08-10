@@ -6,6 +6,8 @@ import { ageMinutes } from '@/lib/format';
 const SUMMARY_URL =
   import.meta.env.VITE_SUMMARY_URL ??
   'https://raw.githubusercontent.com/hongyime/theprawnstatus/data/summary.json';
+const REFRESH_MS = 60_000;
+const STALE_MINUTES = 90;
 
 type Source = 'live' | 'snapshot';
 
@@ -62,7 +64,7 @@ export function useStatusData(): StatusDataState {
             error: null,
             loading: false,
             source: 'live',
-            stale: (ageMinutes(live.generated_at) ?? Infinity) > 45,
+            stale: (ageMinutes(live.generated_at) ?? Infinity) > STALE_MINUTES,
           });
         }
       } catch (liveError) {
@@ -74,7 +76,7 @@ export function useStatusData(): StatusDataState {
               error: liveError instanceof Error ? liveError.message : 'live data unavailable',
               loading: false,
               source: 'snapshot',
-              stale: (ageMinutes(snapshot.generated_at) ?? Infinity) > 45,
+              stale: (ageMinutes(snapshot.generated_at) ?? Infinity) > STALE_MINUTES,
             });
           }
         } catch (snapshotError) {
@@ -92,8 +94,13 @@ export function useStatusData(): StatusDataState {
     }
 
     void load();
+    const interval = window.setInterval(() => {
+      void load();
+    }, REFRESH_MS);
+
     return () => {
       alive = false;
+      window.clearInterval(interval);
     };
   }, []);
 

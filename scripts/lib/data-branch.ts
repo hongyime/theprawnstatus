@@ -2,6 +2,13 @@ import { mkdir, rm } from 'node:fs/promises';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
 
+const WORKTREE_REMOVE_OPTIONS = {
+  recursive: true,
+  force: true,
+  maxRetries: 5,
+  retryDelay: 100,
+} as const;
+
 export interface CommandResult {
   stdout: string;
   stderr: string;
@@ -72,6 +79,18 @@ function assertWorktreeInsideRoot(root: string, worktree: string): void {
   }
 }
 
+async function removeWorktree(worktree: string, failOnError: boolean): Promise<void> {
+  try {
+    await rm(worktree, WORKTREE_REMOVE_OPTIONS);
+  } catch (error) {
+    if (failOnError) {
+      throw error;
+    }
+
+    console.warn(`warning: failed to remove temporary data worktree: ${worktree}`);
+  }
+}
+
 async function resolveRemoteUrl(
   runner: CommandRunner,
   cwd: string,
@@ -103,7 +122,7 @@ export async function withDataBranch<T>(
   const git = (args: readonly string[]) => runner('git', ['-C', worktree, ...args], { env });
 
   assertWorktreeInsideRoot(cwd, worktree);
-  await rm(worktree, { recursive: true, force: true });
+  await removeWorktree(worktree, true);
   await mkdir(path.dirname(worktree), { recursive: true });
 
   try {
@@ -147,6 +166,6 @@ export async function withDataBranch<T>(
 
     return { value, committed: true, pushed: false };
   } finally {
-    await rm(worktree, { recursive: true, force: true });
+    await removeWorktree(worktree, false);
   }
 }

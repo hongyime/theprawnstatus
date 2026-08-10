@@ -17,7 +17,7 @@ export function ShellButton({
 }: ComponentPropsWithoutRef<'button'>): ReactNode {
   return (
     <button
-      className={`focus-ring inline-flex h-10 items-center justify-center gap-2 border-3 border-ink bg-paper px-3 font-display text-sm uppercase shadow-hardSm transition-transform hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 active:shadow-none disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
+      className={`focus-ring inline-flex h-9 items-center justify-center gap-2 border-3 border-ink bg-paper px-3 font-display text-xs font-bold uppercase shadow-hardSm transition-transform hover:translate-x-[2px] hover:translate-y-[3px] hover:shadow-none active:translate-x-[3px] active:translate-y-[4px] active:shadow-none disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
       {...props}
     >
       {children}
@@ -37,7 +37,7 @@ export function StatePill({
 
   return (
     <span
-      className={`inline-flex h-8 min-w-24 items-center justify-center border-3 border-ink px-3 font-display text-xs uppercase text-ink shadow-hardSm state-${visualState} ${
+      className={`inline-flex h-7 min-w-20 items-center justify-center border-3 border-ink px-2 font-display text-[11px] font-bold uppercase text-ink shadow-hardSm state-${visualState} ${
         visualState === 'degraded' ? 'pattern-degraded' : ''
       } ${visualState === 'down' ? 'pattern-down text-paper' : ''} ${
         visualState === 'no-data' ? 'pattern-no-data' : ''
@@ -58,9 +58,9 @@ export function Metric({
   title?: string;
 }): ReactNode {
   return (
-    <div className="min-w-20 text-right" title={title}>
-      <div className="font-mono text-lg font-black leading-none tabular">{value}</div>
-      <div className="mt-1 font-display text-[10px] uppercase">{label}</div>
+    <div className="min-w-16 text-right" title={title}>
+      <div className="font-display text-base font-bold leading-none tabular">{value}</div>
+      <div className="mt-0.5 font-display text-[10px] font-bold uppercase opacity-70">{label}</div>
     </div>
   );
 }

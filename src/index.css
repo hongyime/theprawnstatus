@@ -3,15 +3,14 @@
 @tailwind utilities;
 
 :root {
-  --ink: #111111;
-  --paper: #fffdf5;
-  --board: #f4efe0;
+  --ink: #000000;
+  --paper: #ffffff;
+  --board: #ffffff;
+  --neo-grey: #a3a3a3;
   --up: #16a34a;
   --degraded: #f59e0b;
   --down: #dc2626;
-  --no-data: #9ca3af;
-  --cyan: #00b8d9;
-  --pink: #ff4fa3;
+  --no-data: #a3a3a3;
 }
 
 * {
@@ -28,12 +27,8 @@ body {
   min-width: 320px;
   min-height: 100vh;
   color: var(--ink);
-  background:
-    linear-gradient(90deg, rgba(17, 17, 17, 0.05) 1px, transparent 1px),
-    linear-gradient(rgba(17, 17, 17, 0.05) 1px, transparent 1px),
-    var(--board);
-  background-size: 24px 24px;
-  font-family: Aptos, "Segoe UI", sans-serif;
+  background: var(--board);
+  font-family: "Space Grotesk", sans-serif;
   letter-spacing: 0;
 }
 
@@ -88,6 +83,6 @@ input {
 }
 
 .focus-ring:focus-visible {
-  outline: 3px solid var(--cyan);
+  outline: 3px solid var(--neo-grey);
   outline-offset: 3px;
 }

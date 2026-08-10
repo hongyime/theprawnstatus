@@ -6,10 +6,10 @@ import { formatLatency, formatPercent } from '@/lib/format';
 
 const DAY_MS = 86_400_000;
 const HEIGHT_BY_STATE: Record<DayState, string> = {
-  up: 'h-9',
-  degraded: 'h-7',
-  down: 'h-5',
-  'no-data': 'h-3',
+  up: 'h-7',
+  degraded: 'h-6',
+  down: 'h-4',
+  'no-data': 'h-2',
 };
 
 function addDays(date: Date, days: number): Date {
@@ -57,7 +57,7 @@ export function UptimeStrip({
       role="img"
       aria-label={ariaLabel}
       tabIndex={0}
-      className="focus-ring grid h-11 w-full min-w-0 grid-cols-[repeat(90,minmax(2px,1fr))] items-end gap-0.5"
+      className="focus-ring grid h-8 w-full min-w-0 grid-cols-[repeat(90,minmax(2px,1fr))] items-end gap-px"
     >
       {states.map(({ bucket, state }) => {
         const uptimePercent = bucket.n === 0 ? null : bucket.ok / bucket.n;

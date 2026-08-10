@@ -6,6 +6,7 @@ import { ageMinutes } from '@/lib/format';
 const DATA_BASE =
   import.meta.env.VITE_DATA_BASE ??
   'https://raw.githubusercontent.com/hongyime/theprawnstatus/data';
+const REFRESH_MS = 60_000;
 
 export interface HealthDataState {
   report: HealthReport | null;
@@ -110,8 +111,13 @@ export function useHealthData(): HealthDataState {
     }
 
     void load();
+    const interval = window.setInterval(() => {
+      void load();
+    }, REFRESH_MS);
+
     return () => {
       alive = false;
+      window.clearInterval(interval);
     };
   }, []);
 

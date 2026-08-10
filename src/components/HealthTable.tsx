@@ -64,12 +64,12 @@ export function HealthTable({
   }, [nonCompliantOnly, report, sort]);
 
   if (loading) {
-    return <div className="border-3 border-ink bg-paper p-6 font-display uppercase shadow-hard">Loading health data</div>;
+    return <div className="border-3 border-ink bg-paper p-4 font-display font-bold uppercase shadow-hard">Loading health data</div>;
   }
 
   if (report === null || report.generated_at === null) {
     return (
-      <div className="border-3 border-ink bg-paper p-6 font-display uppercase shadow-hard">
+      <div className="border-3 border-ink bg-paper p-4 font-display font-bold uppercase shadow-hard">
         Health data pending
       </div>
     );
@@ -77,15 +77,15 @@ export function HealthTable({
 
   return (
     <section className="space-y-4">
-      <div className="flex flex-col gap-4 border-3 border-ink bg-paper p-4 shadow-hard lg:flex-row lg:items-center lg:justify-between">
+      <div className="flex flex-col gap-3 border-3 border-ink bg-paper p-3 shadow-hard lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <h2 className="font-display text-3xl uppercase">Repo Health</h2>
-          <p className="mt-1 font-mono text-sm tabular">
+          <h2 className="font-display text-2xl font-bold uppercase">Repo Health</h2>
+          <p className="mt-1 font-display text-xs font-bold uppercase tabular opacity-70">
             {stale ? 'stale' : formatPercent(report.org_score)} org score - {report.repos.length} repos - checked{' '}
             {formatRelativeTime(report.generated_at)}
           </p>
         </div>
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-wrap gap-2">
           <ShellButton
             type="button"
             aria-pressed={nonCompliantOnly}
@@ -112,37 +112,37 @@ export function HealthTable({
       </div>
 
       {rows.length === 0 ? (
-        <div className="border-3 border-ink bg-up p-6 font-display uppercase shadow-hard">
+        <div className="border-3 border-ink bg-up p-4 font-display font-bold uppercase shadow-hard">
           No non-compliant repos in this report
         </div>
       ) : (
         groupRows(rows, group).map(([label, groupedRows]) => (
           <div key={label} className="border-3 border-ink bg-paper shadow-hard">
-            <div className="border-b-3 border-ink bg-cyan px-4 py-2 font-display text-sm uppercase">
+            <div className="border-b-3 border-ink bg-neo px-3 py-2 font-display text-xs font-bold uppercase">
               {label} - {groupedRows.length}
             </div>
             <div className="divide-y-3 divide-ink">
               {groupedRows.map((repo) => (
                 <div
                   key={`${label}-${repo.name}`}
-                  className="grid grid-cols-1 gap-3 px-4 py-3 md:grid-cols-[minmax(180px,1fr)_100px_minmax(220px,2fr)] md:items-center"
+                  className="grid grid-cols-1 gap-2 px-3 py-2 md:grid-cols-[minmax(150px,1fr)_72px_minmax(200px,2fr)] md:items-center"
                 >
-                  <div className="min-w-0 font-display text-lg uppercase">
+                  <div className="min-w-0 font-display text-base font-bold uppercase">
                     <span className="block truncate">{repo.name}</span>
                   </div>
-                  <div className="font-mono text-sm font-black tabular">
+                  <div className="font-display text-sm font-bold tabular">
                     {stale ? '-' : `${repo.score}/${repo.max}`}
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {repo.fail.length === 0 ? (
-                      <span className="border-2 border-ink bg-up px-2 py-1 font-display text-xs uppercase">
+                      <span className="border-2 border-ink bg-up px-2 py-0.5 font-display text-[10px] font-bold uppercase">
                         passing
                       </span>
                     ) : (
                       repo.fail.map((check) => (
                         <span
                           key={check}
-                          className="border-2 border-ink bg-down px-2 py-1 font-display text-xs uppercase text-paper"
+                          className="border-2 border-ink bg-down px-2 py-0.5 font-display text-[10px] font-bold uppercase text-paper"
                         >
                           {check}
                         </span>

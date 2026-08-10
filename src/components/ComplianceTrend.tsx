@@ -27,17 +27,17 @@ export function ComplianceTrend({ history }: { history: HealthHistoryLine[] }): 
   const last = recent.at(-1);
 
   return (
-    <div className="border-3 border-ink bg-paper p-4 shadow-hard">
-      <div className="mb-3 flex items-end justify-between gap-4">
-        <h2 className="font-display text-2xl uppercase">Compliance Trend</h2>
-        <div className="font-mono text-sm font-black tabular">{formatPercent(last?.org_score ?? null)}</div>
+    <div className="border-3 border-ink bg-paper p-3 shadow-hard">
+      <div className="mb-2 flex items-end justify-between gap-4">
+        <h2 className="font-display text-xl font-bold uppercase">Compliance Trend</h2>
+        <div className="font-display text-sm font-bold tabular">{formatPercent(last?.org_score ?? null)}</div>
       </div>
       <svg
         role="img"
         aria-label={`Compliance trend with ${recent.length} data point${recent.length === 1 ? '' : 's'}.`}
         viewBox="0 0 100 100"
         preserveAspectRatio="none"
-        className="h-36 w-full border-3 border-ink bg-board"
+        className="h-28 w-full border-3 border-ink bg-paper"
       >
         <polyline points={pointsFor(recent)} fill="none" stroke="#111111" strokeWidth="4" vectorEffect="non-scaling-stroke" />
         {recent.length === 0 ? (

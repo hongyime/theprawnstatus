@@ -10,11 +10,11 @@ export function Banner({
   const toneClass = {
     warn: 'bg-degraded',
     error: 'bg-down text-paper',
-    info: 'bg-cyan',
+    info: 'bg-neo',
   }[tone];
 
   return (
-    <div className={`border-3 border-ink px-4 py-3 font-display text-sm uppercase shadow-hard ${toneClass}`}>
+    <div className={`border-3 border-ink px-3 py-2 font-display text-xs font-bold uppercase shadow-hardSm ${toneClass}`}>
       {children}
     </div>
   );
