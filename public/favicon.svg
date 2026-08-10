@@ -1,13 +1,26 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" stroke="#DA4130" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Collar -->
   <path d="M32 20 L50 34 L68 20" />
   <path d="M32 20 L44 32" />
   <path d="M68 20 L56 32" />
+
+  <!-- Left Sleeve -->
   <path d="M32 20 L18 36 L26 44 L32 38" />
+
+  <!-- Right Sleeve -->
   <path d="M68 20 L82 36 L74 44 L68 38" />
+
+  <!-- Body -->
   <path d="M32 38 L30 80 C40 84 60 84 70 80 L68 38" />
+
+  <!-- Placket -->
   <path d="M50 34 L50 54" />
+
+  <!-- Buttons (Solid) -->
   <circle cx="50" cy="41" r="2.5" fill="#DA4130" stroke="none" />
   <circle cx="50" cy="49" r="2.5" fill="#DA4130" stroke="none" />
+
+  <!-- Texture Lines (Diagonal Swishes) -->
   <path d="M38 52 Q 48 56 56 48" />
   <path d="M36 62 Q 46 66 54 58" />
   <path d="M38 70 Q 44 72 48 68" />
