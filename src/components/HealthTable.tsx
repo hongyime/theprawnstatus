@@ -77,33 +77,37 @@ function ScoreTrend({ history }: { history: HealthHistoryLine[] }): ReactNode {
   const pointCount = recent.length;
 
   return (
-    <div className="min-w-0 border-3 border-ink bg-paper p-2 shadow-hardSm lg:w-56">
-      <div className="mb-1 flex items-center justify-between gap-2 font-display text-[10px] font-bold uppercase tabular">
-        <span>{pointCount === 0 ? 'No trend yet' : `${pointCount} point${pointCount === 1 ? '' : 's'}`}</span>
+    <div className="min-w-0 lg:w-52">
+      <div className="mb-1 flex items-center justify-between gap-2 font-display text-[10px] font-bold uppercase tabular opacity-70">
+        <span>Trend</span>
+        <span>{pointCount === 0 ? 'No samples' : `${pointCount} sample${pointCount === 1 ? '' : 's'}`}</span>
+      </div>
+      <div className="flex items-end gap-2">
+        <svg
+          role="img"
+          aria-label={`Repo score trend with ${pointCount} data sample${pointCount === 1 ? '' : 's'}.`}
+          viewBox="0 0 100 100"
+          preserveAspectRatio="none"
+          className="h-10 min-w-0 flex-1 overflow-visible"
+        >
+          <line x1="0" y1="96" x2="100" y2="96" stroke="#a3a3a3" strokeWidth="3" vectorEffect="non-scaling-stroke" />
+          <polyline points={pointsFor(recent)} fill="none" stroke="#000000" strokeWidth="4" vectorEffect="non-scaling-stroke" />
+          {last !== undefined ? (
+            <circle
+              cx={recent.length === 1 ? 50 : 98}
+              cy={100 - last.org_score * 100}
+              r="3"
+              fill="#ffffff"
+              stroke="#000000"
+              strokeWidth="3"
+              vectorEffect="non-scaling-stroke"
+            />
+          ) : (
+            <line x1="0" y1="96" x2="100" y2="96" stroke="#000000" strokeWidth="4" vectorEffect="non-scaling-stroke" />
+          )}
+        </svg>
         <span>{formatPercent(last?.org_score ?? null)}</span>
       </div>
-      <svg
-        role="img"
-        aria-label={`Repo score trend with ${pointCount} data point${pointCount === 1 ? '' : 's'}.`}
-        viewBox="0 0 100 100"
-        preserveAspectRatio="none"
-        className="h-12 w-full border-2 border-ink bg-paper"
-      >
-        <polyline points={pointsFor(recent)} fill="none" stroke="#000000" strokeWidth="4" vectorEffect="non-scaling-stroke" />
-        {last !== undefined ? (
-          <circle
-            cx={recent.length === 1 ? 50 : 98}
-            cy={100 - last.org_score * 100}
-            r="3"
-            fill="#ffffff"
-            stroke="#000000"
-            strokeWidth="3"
-            vectorEffect="non-scaling-stroke"
-          />
-        ) : (
-          <line x1="0" y1="100" x2="100" y2="100" stroke="#000000" strokeWidth="4" vectorEffect="non-scaling-stroke" />
-        )}
-      </svg>
     </div>
   );
 }
@@ -115,7 +119,7 @@ function RepoCard({ repo, stale }: { repo: RepoHealth; stale: boolean }): ReactN
         <div className="min-w-0 font-display text-base font-bold uppercase leading-tight">
           <span className="block truncate">{repo.name}</span>
         </div>
-        <div className="shrink-0 border-2 border-ink bg-neo px-2 py-0.5 font-display text-xs font-bold tabular">
+        <div className="shrink-0 pt-0.5 font-display text-xs font-bold uppercase tabular opacity-70">
           {stale ? '-' : `${repo.score}/${repo.max}`}
         </div>
       </div>
@@ -181,7 +185,7 @@ export function HealthTable({
 
   return (
     <section className="space-y-3">
-      <div className="grid gap-3 border-3 border-ink bg-paper p-3 shadow-hard lg:grid-cols-[minmax(0,1fr)_224px_auto] lg:items-center">
+      <div className="grid gap-3 border-3 border-ink bg-paper p-3 shadow-hard lg:grid-cols-[minmax(0,1fr)_208px_auto] lg:items-center">
         <div className="min-w-0">
           <h2 className="font-display text-2xl font-bold uppercase">Repo Standards</h2>
           <p className="mt-1 font-display text-xs font-bold uppercase tabular opacity-70">
