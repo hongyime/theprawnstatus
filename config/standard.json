@@ -1,67 +1,128 @@
 {
   "standard_version": "1.0.0",
-  "source": "hongyime/sourcerepo STANDARD.md",
+  "source": "X:/01 REPOSITORIES/_shell/STANDARD.md and hongyime/sourcerepo tools/check_repo.py",
   "known_default_description": "Give me 1 ⭐ if it's cool.",
   "checks": [
     {
-      "id": "license_is_apache_2",
+      "id": "license_is_full_apache_2",
       "weight": 1,
       "severity": "high"
     },
     {
-      "id": "notice_present",
+      "id": "notice_names_organisation",
       "weight": 1,
       "severity": "high",
       "params": {
-        "organisation": "The Prawn Organisation"
+        "notice_text": "Copyright 2026 The Prawn Organisation"
       }
     },
     {
-      "id": "description_is_not_default",
-      "weight": 1,
-      "severity": "medium"
-    },
-    {
-      "id": "topics_min_3",
-      "weight": 1,
-      "severity": "low",
-      "params": {
-        "min": 3
-      }
-    },
-    {
-      "id": "readme_min_bytes",
+      "id": "description_is_real",
       "weight": 1,
       "severity": "medium",
       "params": {
-        "min": 500
+        "max": 120
       }
     },
     {
-      "id": "security_policy_present",
-      "weight": 1,
-      "severity": "high"
-    },
-    {
-      "id": "discussions_matches_standard",
+      "id": "topics_match_vocabulary",
       "weight": 1,
       "severity": "low",
       "params": {
-        "expected": true
+        "min": 3,
+        "reserved": [
+          "keep-lfs",
+          "no-config-sync"
+        ],
+        "allowed": [
+          "ai",
+          "api",
+          "automation",
+          "browser-extension",
+          "cli",
+          "data",
+          "dataset",
+          "education",
+          "flask",
+          "game",
+          "github-actions",
+          "javascript",
+          "nextjs",
+          "nodejs",
+          "portfolio",
+          "python",
+          "react",
+          "singapore",
+          "static-site",
+          "supabase",
+          "tool",
+          "typescript",
+          "vercel",
+          "web",
+          "keep-lfs",
+          "no-config-sync"
+        ]
       }
     },
     {
-      "id": "default_branch_matches_standard",
+      "id": "readme_meets_standard",
       "weight": 1,
       "severity": "medium",
       "params": {
-        "expected": "main"
+        "min": 400
       }
     },
     {
-      "id": "not_unintentionally_archived",
+      "id": "showcase_meets_standard",
       "weight": 1,
-      "severity": "medium"
+      "severity": "medium",
+      "params": {
+        "showcase_repos": [
+          "anywheelsQR2020",
+          "attackpassword",
+          "chromedino",
+          "emailvalidate",
+          "emailverification",
+          "englishDefinitions2021",
+          "englishwords",
+          "gmailclient",
+          "gmaplists",
+          "infinityTabs2020",
+          "keyLogger2020",
+          "nanyangNightStudy2020",
+          "networkScan2020",
+          "omegleFinder2021",
+          "playsplendor",
+          "pokemonpacks",
+          "pythoncrash",
+          "rainbowchess",
+          "ramenreviews",
+          "removeaudio",
+          "renamephotos",
+          "safeEntry2020",
+          "searchIG2020",
+          "sgAveroTech2021",
+          "sgBusLaoBu2021",
+          "sgCarParks2020",
+          "sgNRIC2003",
+          "sgNRICgenerator65",
+          "sgNumbers2020",
+          "sgPhoneNumbers65",
+          "sgPostalCodes2017",
+          "sgSchools2020",
+          "theprawnfeeds",
+          "websiteDOS2019",
+          "wordleguesser",
+          "youtubepublisher"
+        ],
+        "default_homepages": [
+          "",
+          "https://www.hong-yi.me",
+          "http://www.hong-yi.me",
+          "https://hong-yi.me",
+          "http://hong-yi.me"
+        ]
+      }
     }
   ],
   "exempt": {}

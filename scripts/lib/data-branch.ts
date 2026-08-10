@@ -99,7 +99,7 @@ export async function withDataBranch<T>(
   const branch = options.branch ?? 'data';
   const env = options.env ?? process.env;
   const runner = options.runner ?? runCommand;
-  const worktree = path.resolve(cwd, options.worktreePath ?? 'data-wt');
+  const worktree = path.resolve(cwd, options.worktreePath ?? `data-wt-${process.pid}-${Date.now()}`);
   const git = (args: readonly string[]) => runner('git', ['-C', worktree, ...args], { env });
 
   assertWorktreeInsideRoot(cwd, worktree);
@@ -131,7 +131,7 @@ export async function withDataBranch<T>(
       return { value, committed: false, pushed: false };
     }
 
-    await git(['commit', '-m', options.commitMessage]);
+    await git(['commit', '--no-verify', '-m', options.commitMessage]);
 
     for (let attempt = 1; attempt <= 3; attempt += 1) {
       try {

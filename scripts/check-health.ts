@@ -24,7 +24,9 @@ async function main(): Promise<void> {
     throw new Error('HEALTH_PAT is required for repo health checks');
   }
 
-  console.log('::add-mask::' + token);
+  if (process.env.GITHUB_ACTIONS === 'true') {
+    console.log('::add-mask::' + token);
+  }
 
   const org = process.env.HEALTH_ORG ?? 'hongyime';
   const standard = await loadStandardConfig('config/standard.json', knownCheckIds());

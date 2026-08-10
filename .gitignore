@@ -7,7 +7,7 @@ coverage/
 .env
 .env.*
 !.env.example
-data-wt/
+data-wt*/
 .keepalive
 
 .vercel

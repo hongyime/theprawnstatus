@@ -1,7 +1,652 @@
 {
-  "generated_at": null,
+  "generated_at": "2026-08-10T03:47:52.969Z",
   "standard_version": "1.0.0",
   "schema": 1,
-  "org_score": 0,
-  "repos": []
+  "org_score": 0.9084507042253521,
+  "repos": [
+    {
+      "name": "anywheelsQR2020",
+      "score": 5,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": [
+        "showcase_meets_standard"
+      ]
+    },
+    {
+      "name": "attackpassword",
+      "score": 5,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": [
+        "showcase_meets_standard"
+      ]
+    },
+    {
+      "name": "chromedino",
+      "score": 5,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": [
+        "showcase_meets_standard"
+      ]
+    },
+    {
+      "name": "ctfsolver",
+      "score": 6,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": []
+    },
+    {
+      "name": "dejavista",
+      "score": 6,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": []
+    },
+    {
+      "name": "emailvalidate",
+      "score": 5,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": [
+        "showcase_meets_standard"
+      ]
+    },
+    {
+      "name": "emailverification",
+      "score": 5,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": [
+        "showcase_meets_standard"
+      ]
+    },
+    {
+      "name": "englishDefinitions2021",
+      "score": 5,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": [
+        "showcase_meets_standard"
+      ]
+    },
+    {
+      "name": "englishwords",
+      "score": 5,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": [
+        "showcase_meets_standard"
+      ]
+    },
+    {
+      "name": "facetracker",
+      "score": 6,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": []
+    },
+    {
+      "name": "FORGE",
+      "score": 6,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": []
+    },
+    {
+      "name": "gmailclient",
+      "score": 5,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": [
+        "showcase_meets_standard"
+      ]
+    },
+    {
+      "name": "gmaplists",
+      "score": 5,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": [
+        "showcase_meets_standard"
+      ]
+    },
+    {
+      "name": "infinityTabs2020",
+      "score": 5,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": [
+        "showcase_meets_standard"
+      ]
+    },
+    {
+      "name": "keyLogger2020",
+      "score": 5,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": [
+        "showcase_meets_standard"
+      ]
+    },
+    {
+      "name": "musicstream",
+      "score": 6,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": []
+    },
+    {
+      "name": "nanyangNightStudy2020",
+      "score": 5,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": [
+        "showcase_meets_standard"
+      ]
+    },
+    {
+      "name": "networkScan2020",
+      "score": 5,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": [
+        "showcase_meets_standard"
+      ]
+    },
+    {
+      "name": "nusnetID2021",
+      "score": 6,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": []
+    },
+    {
+      "name": "omegleFinder2021",
+      "score": 5,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": [
+        "showcase_meets_standard"
+      ]
+    },
+    {
+      "name": "patreonalive",
+      "score": 6,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": []
+    },
+    {
+      "name": "piixesicons",
+      "score": 6,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": []
+    },
+    {
+      "name": "playchess",
+      "score": 6,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": []
+    },
+    {
+      "name": "playsplendor",
+      "score": 5,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": [
+        "showcase_meets_standard"
+      ]
+    },
+    {
+      "name": "pocketclawd",
+      "score": 6,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": []
+    },
+    {
+      "name": "pokemoncards",
+      "score": 6,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": []
+    },
+    {
+      "name": "pokemonpacks",
+      "score": 5,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": [
+        "showcase_meets_standard"
+      ]
+    },
+    {
+      "name": "pythoncrash",
+      "score": 5,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": [
+        "showcase_meets_standard"
+      ]
+    },
+    {
+      "name": "rainbowchess",
+      "score": 5,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": [
+        "showcase_meets_standard"
+      ]
+    },
+    {
+      "name": "ramenreviews",
+      "score": 5,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": [
+        "showcase_meets_standard"
+      ]
+    },
+    {
+      "name": "removeaudio",
+      "score": 5,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": [
+        "showcase_meets_standard"
+      ]
+    },
+    {
+      "name": "renamephotos",
+      "score": 5,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": [
+        "showcase_meets_standard"
+      ]
+    },
+    {
+      "name": "safeEntry2020",
+      "score": 5,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": [
+        "showcase_meets_standard"
+      ]
+    },
+    {
+      "name": "searchIG2020",
+      "score": 5,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": [
+        "showcase_meets_standard"
+      ]
+    },
+    {
+      "name": "sgAveroTech2021",
+      "score": 5,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": [
+        "showcase_meets_standard"
+      ]
+    },
+    {
+      "name": "sgBusLaoBu2021",
+      "score": 5,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": [
+        "showcase_meets_standard"
+      ]
+    },
+    {
+      "name": "sgCampusCore2026",
+      "score": 6,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": []
+    },
+    {
+      "name": "sgCarParks2020",
+      "score": 5,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": [
+        "showcase_meets_standard"
+      ]
+    },
+    {
+      "name": "sgNRIC2003",
+      "score": 5,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": [
+        "showcase_meets_standard"
+      ]
+    },
+    {
+      "name": "sgNRICgenerator65",
+      "score": 5,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": [
+        "showcase_meets_standard"
+      ]
+    },
+    {
+      "name": "sgNumbers2020",
+      "score": 5,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": [
+        "showcase_meets_standard"
+      ]
+    },
+    {
+      "name": "sgPayNowQR65",
+      "score": 6,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": []
+    },
+    {
+      "name": "sgPhoneNumbers65",
+      "score": 5,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": [
+        "showcase_meets_standard"
+      ]
+    },
+    {
+      "name": "sgPostalCodes2017",
+      "score": 5,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": [
+        "showcase_meets_standard"
+      ]
+    },
+    {
+      "name": "sgSchools2020",
+      "score": 5,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": [
+        "showcase_meets_standard"
+      ]
+    },
+    {
+      "name": "sgSHIOK2026",
+      "score": 6,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": []
+    },
+    {
+      "name": "sgStyleSnap2025",
+      "score": 6,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": []
+    },
+    {
+      "name": "sgWerkzPhotography2021",
+      "score": 6,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": []
+    },
+    {
+      "name": "smucourses",
+      "score": 6,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": []
+    },
+    {
+      "name": "smuseats",
+      "score": 6,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": []
+    },
+    {
+      "name": "sourcerepo",
+      "score": 6,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": []
+    },
+    {
+      "name": "spritescavenger",
+      "score": 6,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": []
+    },
+    {
+      "name": "supabasealive",
+      "score": 6,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": []
+    },
+    {
+      "name": "swiperboxd",
+      "score": 6,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": []
+    },
+    {
+      "name": "theprawnfeeds",
+      "score": 5,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": [
+        "showcase_meets_standard"
+      ]
+    },
+    {
+      "name": "theprawngame",
+      "score": 6,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": []
+    },
+    {
+      "name": "theprawnhome",
+      "score": 6,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": []
+    },
+    {
+      "name": "theprawnhunter",
+      "score": 6,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": []
+    },
+    {
+      "name": "theprawnprojects",
+      "score": 6,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": []
+    },
+    {
+      "name": "theprawnredirects",
+      "score": 6,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": []
+    },
+    {
+      "name": "theprawnstatus",
+      "score": 3,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": [
+        "notice_names_organisation",
+        "description_is_real",
+        "topics_match_vocabulary"
+      ]
+    },
+    {
+      "name": "theprawnsurprise",
+      "score": 6,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": []
+    },
+    {
+      "name": "ticketremaster-b",
+      "score": 6,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": []
+    },
+    {
+      "name": "ticketremaster-f",
+      "score": 6,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": []
+    },
+    {
+      "name": "trexrunner",
+      "score": 6,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": []
+    },
+    {
+      "name": "unifiedanalyzer",
+      "score": 6,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": []
+    },
+    {
+      "name": "unifiedcollector",
+      "score": 6,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": []
+    },
+    {
+      "name": "validateNRIC2020",
+      "score": 6,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": []
+    },
+    {
+      "name": "websiteDOS2019",
+      "score": 5,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": [
+        "showcase_meets_standard"
+      ]
+    },
+    {
+      "name": "wordleguesser",
+      "score": 5,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": [
+        "showcase_meets_standard"
+      ]
+    },
+    {
+      "name": "youtubepublisher",
+      "score": 5,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": [
+        "showcase_meets_standard"
+      ]
+    }
+  ]
 }

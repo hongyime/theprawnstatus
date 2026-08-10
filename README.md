@@ -51,7 +51,7 @@ Do not merge `data` into `main`.
 
 The health checker needs a read-only fine-grained GitHub PAT stored as `HEALTH_PAT`.
 
-Expiry date: `TODO`
+Expiry date: none provided.
 
 Required permissions: Metadata read, Contents read, Administration read, scoped to `hongyime` repositories.
 

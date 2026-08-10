@@ -13,7 +13,7 @@ async function main(): Promise<void> {
     return;
   }
 
-  await runCommand('git', ['commit', '-m', 'chore: keepalive']);
+  await runCommand('git', ['commit', '--no-verify', '-m', 'chore: keepalive']);
   await runCommand('git', ['push', 'origin', 'HEAD:main']);
 }
 

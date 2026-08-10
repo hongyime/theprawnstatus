@@ -3,8 +3,10 @@ import { setTimeout as sleep } from 'node:timers/promises';
 
 export interface GithubRepo {
   name: string;
+  full_name: string;
   archived: boolean;
   description: string | null;
+  homepage: string | null;
   topics: string[];
   license: { spdx_id: string | null } | null;
   has_discussions: boolean;
@@ -12,21 +14,12 @@ export interface GithubRepo {
   visibility: string;
 }
 
-export interface CommunityProfile {
-  files?: {
-    code_of_conduct?: unknown;
-    contributing?: unknown;
-    issue_template?: unknown;
-    pull_request_template?: unknown;
-    license?: unknown;
-    readme?: unknown;
-  };
-}
-
 export interface RepoFacts extends GithubRepo {
+  licenseText: string | null;
   readmeSize: number | null;
+  readmeText: string | null;
   noticeText: string | null;
-  securityPolicyPresent: boolean;
+  rootMediaPresent: boolean;
 }
 
 interface GithubClientOptions {
@@ -34,6 +27,7 @@ interface GithubClientOptions {
   org: string;
   fetchImpl?: typeof fetch;
   delayMs?: number;
+  timeoutMs?: number;
 }
 
 export class GithubApiError extends Error {
@@ -48,10 +42,12 @@ export class GithubApiError extends Error {
 export class GithubClient {
   private readonly fetchImpl: typeof fetch;
   private readonly delayMs: number;
+  private readonly timeoutMs: number;
 
   constructor(private readonly options: GithubClientOptions) {
     this.fetchImpl = options.fetchImpl ?? fetch;
-    this.delayMs = options.delayMs ?? 150;
+    this.delayMs = options.delayMs ?? 25;
+    this.timeoutMs = options.timeoutMs ?? 20_000;
   }
 
   async request<T>(path: string, allow404 = false): Promise<T | null> {
@@ -63,6 +59,7 @@ export class GithubClient {
         'X-GitHub-Api-Version': '2022-11-28',
         'User-Agent': 'theprawnstatus/1.0',
       },
+      signal: AbortSignal.timeout(this.timeoutMs),
     });
 
     if (response.status === 404 && allow404) {
@@ -107,12 +104,22 @@ export class GithubClient {
     return repos;
   }
 
-  async getReadmeSize(repo: string): Promise<number | null> {
-    const readme = await this.request<{ size: number }>(
+  async getReadme(repo: string): Promise<{ size: number; text: string | null } | null> {
+    const readme = await this.request<{ size: number; content?: string; encoding?: string }>(
       `/repos/${this.options.org}/${repo}/readme`,
       true,
     );
-    return readme?.size ?? null;
+    if (readme === null) {
+      return null;
+    }
+
+    return {
+      size: readme.size,
+      text:
+        readme.content !== undefined && readme.encoding === 'base64'
+          ? Buffer.from(readme.content, 'base64').toString('utf8')
+          : null,
+    };
   }
 
   async getContentText(repo: string, filePath: string): Promise<string | null> {
@@ -128,25 +135,29 @@ export class GithubClient {
     return Buffer.from(content.content, 'base64').toString('utf8');
   }
 
-  async hasSecurityPolicy(repo: string): Promise<boolean> {
-    const community = await this.request<CommunityProfile>(
-      `/repos/${this.options.org}/${repo}/community/profile`,
-      true,
-    );
+  async getFirstContentText(repo: string, paths: string[]): Promise<string | null> {
+    for (const filePath of paths) {
+      const text = await this.getContentText(repo, filePath);
+      if (text !== null) {
+        return text;
+      }
+    }
 
-    if (community !== null && 'files' in community) {
-      const securityFile = (community.files as Record<string, unknown> | undefined)?.security_policy;
-      if (securityFile !== undefined && securityFile !== null) {
+    return null;
+  }
+
+  async hasAnyContent(repo: string, paths: string[]): Promise<boolean> {
+    for (const filePath of paths) {
+      const content = await this.request<unknown>(
+        `/repos/${this.options.org}/${repo}/contents/${encodeURIComponent(filePath)}`,
+        true,
+      );
+      if (content !== null) {
         return true;
       }
     }
 
-    const rootPolicy = await this.getContentText(repo, 'SECURITY.md');
-    if (rootPolicy !== null) {
-      return true;
-    }
-
-    return (await this.getContentText(repo, '.github/SECURITY.md')) !== null;
+    return false;
   }
 }
 
@@ -155,11 +166,25 @@ export async function fetchOrgRepoFacts(client: GithubClient): Promise<RepoFacts
   const facts: RepoFacts[] = [];
 
   for (const repo of repos) {
+    const readme = await client.getReadme(repo.name);
     facts.push({
       ...repo,
-      readmeSize: await client.getReadmeSize(repo.name),
+      licenseText: await client.getFirstContentText(repo.name, [
+        'LICENSE',
+        'LICENSE.md',
+        'LICENCE',
+        'LICENCE.md',
+      ]),
+      readmeSize: readme?.size ?? null,
+      readmeText: readme?.text ?? null,
       noticeText: await client.getContentText(repo.name, 'NOTICE'),
-      securityPolicyPresent: await client.hasSecurityPolicy(repo.name),
+      rootMediaPresent: await client.hasAnyContent(repo.name, [
+        'screenshot.png',
+        'screenshot.jpg',
+        'screenshot.jpeg',
+        'screenshot.webp',
+        'demo.gif',
+      ]),
     });
   }
 
