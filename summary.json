@@ -1,6 +1,315 @@
 {
-  "generated_at": null,
+  "generated_at": "2026-08-10T01:58:46.434Z",
   "window_days": 90,
   "schema": 1,
-  "targets": []
+  "targets": [
+    {
+      "id": "dejavista",
+      "name": "DejaVista",
+      "url": "https://dejavista.hong-yi.me",
+      "current": {
+        "state": "up",
+        "status": 200,
+        "ms": 788,
+        "checked_at": "2026-08-10T01:58:47.225Z"
+      },
+      "uptime_90d": 1,
+      "p50_ms": 788,
+      "p95_ms": 788,
+      "days": [
+        {
+          "d": "2026-08-10",
+          "n": 1,
+          "ok": 1,
+          "p50": 788
+        }
+      ]
+    },
+    {
+      "id": "www",
+      "name": "Hong Yi Home",
+      "url": "https://www.hong-yi.me",
+      "current": {
+        "state": "up",
+        "status": 200,
+        "ms": 457,
+        "checked_at": "2026-08-10T01:58:48.090Z"
+      },
+      "uptime_90d": 1,
+      "p50_ms": 457,
+      "p95_ms": 457,
+      "days": [
+        {
+          "d": "2026-08-10",
+          "n": 1,
+          "ok": 1,
+          "p50": 457
+        }
+      ]
+    },
+    {
+      "id": "pocketclawd",
+      "name": "PocketClawd",
+      "url": "https://pocketclawd.hong-yi.me",
+      "current": {
+        "state": "up",
+        "status": 200,
+        "ms": 493,
+        "checked_at": "2026-08-10T01:58:47.162Z"
+      },
+      "uptime_90d": 1,
+      "p50_ms": 493,
+      "p95_ms": 493,
+      "days": [
+        {
+          "d": "2026-08-10",
+          "n": 1,
+          "ok": 1,
+          "p50": 493
+        }
+      ]
+    },
+    {
+      "id": "pokemonpacks",
+      "name": "Pokemon Packs",
+      "url": "https://pokemonpacks.hong-yi.me",
+      "current": {
+        "state": "up",
+        "status": 200,
+        "ms": 466,
+        "checked_at": "2026-08-10T01:58:47.138Z"
+      },
+      "uptime_90d": 1,
+      "p50_ms": 466,
+      "p95_ms": 466,
+      "days": [
+        {
+          "d": "2026-08-10",
+          "n": 1,
+          "ok": 1,
+          "p50": 466
+        }
+      ]
+    },
+    {
+      "id": "smucourses",
+      "name": "SMU Courses",
+      "url": "https://smucourses.hong-yi.me",
+      "current": {
+        "state": "up",
+        "status": 200,
+        "ms": 525,
+        "checked_at": "2026-08-10T01:58:47.200Z"
+      },
+      "uptime_90d": 1,
+      "p50_ms": 525,
+      "p95_ms": 525,
+      "days": [
+        {
+          "d": "2026-08-10",
+          "n": 1,
+          "ok": 1,
+          "p50": 525
+        }
+      ]
+    },
+    {
+      "id": "smuseats",
+      "name": "SMU Seats",
+      "url": "https://smuseats.hong-yi.me",
+      "current": {
+        "state": "up",
+        "status": 200,
+        "ms": 516,
+        "checked_at": "2026-08-10T01:58:47.194Z"
+      },
+      "uptime_90d": 1,
+      "p50_ms": 516,
+      "p95_ms": 516,
+      "days": [
+        {
+          "d": "2026-08-10",
+          "n": 1,
+          "ok": 1,
+          "p50": 516
+        }
+      ]
+    },
+    {
+      "id": "spritescavenger",
+      "name": "Sprite Scavenger",
+      "url": "https://spritescavenger.hong-yi.me",
+      "current": {
+        "state": "up",
+        "status": 200,
+        "ms": 495,
+        "checked_at": "2026-08-10T01:58:47.633Z"
+      },
+      "uptime_90d": 1,
+      "p50_ms": 495,
+      "p95_ms": 495,
+      "days": [
+        {
+          "d": "2026-08-10",
+          "n": 1,
+          "ok": 1,
+          "p50": 495
+        }
+      ]
+    },
+    {
+      "id": "swiperboxd",
+      "name": "Swiperboxd",
+      "url": "https://swiperboxd.hong-yi.me",
+      "current": {
+        "state": "up",
+        "status": 200,
+        "ms": 680,
+        "checked_at": "2026-08-10T01:58:47.842Z"
+      },
+      "uptime_90d": 1,
+      "p50_ms": 680,
+      "p95_ms": 680,
+      "days": [
+        {
+          "d": "2026-08-10",
+          "n": 1,
+          "ok": 1,
+          "p50": 680
+        }
+      ]
+    },
+    {
+      "id": "theprawnfeeds",
+      "name": "The Prawn Feeds",
+      "url": "https://theprawnfeeds.hong-yi.me",
+      "current": {
+        "state": "up",
+        "status": 200,
+        "ms": 427,
+        "checked_at": "2026-08-10T01:58:47.621Z"
+      },
+      "uptime_90d": 1,
+      "p50_ms": 427,
+      "p95_ms": 427,
+      "days": [
+        {
+          "d": "2026-08-10",
+          "n": 1,
+          "ok": 1,
+          "p50": 427
+        }
+      ]
+    },
+    {
+      "id": "theprawngame",
+      "name": "The Prawn Game",
+      "url": "https://theprawngame.hong-yi.me",
+      "current": {
+        "state": "up",
+        "status": 200,
+        "ms": 408,
+        "checked_at": "2026-08-10T01:58:47.608Z"
+      },
+      "uptime_90d": 1,
+      "p50_ms": 408,
+      "p95_ms": 408,
+      "days": [
+        {
+          "d": "2026-08-10",
+          "n": 1,
+          "ok": 1,
+          "p50": 408
+        }
+      ]
+    },
+    {
+      "id": "theprawnhome",
+      "name": "The Prawn Home",
+      "url": "https://theprawnhome.hong-yi.me",
+      "current": {
+        "state": "up",
+        "status": 200,
+        "ms": 130,
+        "checked_at": "2026-08-10T01:58:47.354Z"
+      },
+      "uptime_90d": 1,
+      "p50_ms": 130,
+      "p95_ms": 130,
+      "days": [
+        {
+          "d": "2026-08-10",
+          "n": 1,
+          "ok": 1,
+          "p50": 130
+        }
+      ]
+    },
+    {
+      "id": "theprawnhunter",
+      "name": "The Prawn Hunter",
+      "url": "https://theprawnhunter.hong-yi.me",
+      "current": {
+        "state": "up",
+        "status": 200,
+        "ms": 449,
+        "checked_at": "2026-08-10T01:58:47.803Z"
+      },
+      "uptime_90d": 1,
+      "p50_ms": 449,
+      "p95_ms": 449,
+      "days": [
+        {
+          "d": "2026-08-10",
+          "n": 1,
+          "ok": 1,
+          "p50": 449
+        }
+      ]
+    },
+    {
+      "id": "theprawnprojects",
+      "name": "The Prawn Projects",
+      "url": "https://theprawnprojects.hong-yi.me",
+      "current": {
+        "state": "up",
+        "status": 200,
+        "ms": 184,
+        "checked_at": "2026-08-10T01:58:47.793Z"
+      },
+      "uptime_90d": 1,
+      "p50_ms": 184,
+      "p95_ms": 184,
+      "days": [
+        {
+          "d": "2026-08-10",
+          "n": 1,
+          "ok": 1,
+          "p50": 184
+        }
+      ]
+    },
+    {
+      "id": "theprawnsurprise",
+      "name": "The Prawn Surprise",
+      "url": "https://theprawnsurprise.hong-yi.me",
+      "current": {
+        "state": "up",
+        "status": 200,
+        "ms": 453,
+        "checked_at": "2026-08-10T01:58:48.074Z"
+      },
+      "uptime_90d": 1,
+      "p50_ms": 453,
+      "p95_ms": 453,
+      "days": [
+        {
+          "d": "2026-08-10",
+          "n": 1,
+          "ok": 1,
+          "p50": 453
+        }
+      ]
+    }
+  ]
 }
