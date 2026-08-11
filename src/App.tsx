@@ -44,23 +44,13 @@ function App(): ReactNode {
         </div>
 
         <section className="space-y-3">
-          <div className="flex flex-col gap-2 border-3 border-ink bg-paper p-3 shadow-hard md:flex-row md:items-center md:justify-between">
-            <div>
+          <div className="border-3 border-ink bg-paper p-3 text-center shadow-hard">
+            <div className="mx-auto max-w-3xl">
               <h2 className="font-display text-2xl font-bold uppercase">Deployments</h2>
               <p className="font-display text-xs font-bold uppercase tabular opacity-70">
-                {loadedTargets.length} targets - scheduled ~5 min - stale after 20 min - page
+                {loadedTargets.length} targets - scheduled every 5 min - stale after 20 min - page
                 refreshes every 60s
               </p>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <a
-                className="focus-ring inline-flex h-9 items-center justify-center gap-2 border-3 border-ink bg-paper px-3 font-display text-xs font-bold uppercase shadow-hardSm hover:bg-neo"
-                href="https://github.com/hongyime/theprawnstatus"
-                target="_blank"
-                rel="noreferrer"
-              >
-                GitHub
-              </a>
             </div>
           </div>
 
@@ -88,7 +78,7 @@ function App(): ReactNode {
 
         <HealthTable
           report={health.report}
-          history={health.history}
+          reportHistory={health.reportHistory}
           loading={health.loading}
           stale={health.stale}
         />

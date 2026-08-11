@@ -1,7 +1,7 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { ArrowUpDown, Filter, Layers3 } from 'lucide-react';
 
-import type { HealthHistoryLine, HealthReport, RepoHealth } from '@shared/types';
+import type { HealthReport, RepoHealth } from '@shared/types';
 import { formatPercent, formatRelativeTime } from '@/lib/format';
 import { ShellButton } from './primitives';
 
@@ -19,25 +19,6 @@ const CHECK_LABELS: Record<string, string> = {
 
 function checkLabel(check: string): string {
   return CHECK_LABELS[check] ?? check.replaceAll('_', ' ');
-}
-
-function pointsFor(history: HealthHistoryLine[]): string {
-  if (history.length === 0) {
-    return '';
-  }
-
-  if (history.length === 1) {
-    const y = 100 - history[0].org_score * 100;
-    return `0,${y} 100,${y}`;
-  }
-
-  return history
-    .map((item, index) => {
-      const x = (index / (history.length - 1)) * 100;
-      const y = 100 - item.org_score * 100;
-      return `${x},${y}`;
-    })
-    .join(' ');
 }
 
 function repoScore(repo: RepoHealth): number {
@@ -71,48 +52,52 @@ function groupRows(rows: RepoHealth[], mode: GroupMode, flatLabel: string): Arra
   return [...groups.entries()].sort((a, b) => a[0].localeCompare(b[0]));
 }
 
-function ScoreTrend({ history }: { history: HealthHistoryLine[] }): ReactNode {
-  const recent = history.slice(-90);
-  const last = recent.at(-1);
-  const pointCount = recent.length;
+function repoTrend(repoName: string, reports: HealthReport[]): RepoHealth[] {
+  return reports
+    .map((report) => report.repos.find((repo) => repo.name === repoName))
+    .filter((repo): repo is RepoHealth => repo !== undefined);
+}
+
+function RepoTrend({ repoName, reports, stale }: { repoName: string; reports: HealthReport[]; stale: boolean }): ReactNode {
+  const recent = repoTrend(repoName, reports).slice(-14);
+  const aria = recent.length === 0
+    ? `${repoName} has no recent standards samples.`
+    : `${repoName} standards trend with ${recent.length} sample${recent.length === 1 ? '' : 's'}.`;
 
   return (
-    <div className="min-w-0 lg:w-52">
-      <div className="mb-1 flex items-center justify-between gap-2 font-display text-[10px] font-bold uppercase tabular opacity-70">
-        <span>Trend</span>
-        <span>{pointCount === 0 ? 'No samples' : `${pointCount} sample${pointCount === 1 ? '' : 's'}`}</span>
+    <div className="space-y-1">
+      <div className="flex items-center justify-between gap-2 font-display text-[10px] font-bold uppercase tabular opacity-70">
+        <span>trend</span>
+        <span>{recent.length === 0 ? 'no samples' : `${recent.length} sample${recent.length === 1 ? '' : 's'}`}</span>
       </div>
-      <div className="flex items-end gap-2">
-        <svg
-          role="img"
-          aria-label={`Repo score trend with ${pointCount} data sample${pointCount === 1 ? '' : 's'}.`}
-          viewBox="0 0 100 100"
-          preserveAspectRatio="none"
-          className="h-10 min-w-0 flex-1 overflow-visible"
-        >
-          <line x1="0" y1="96" x2="100" y2="96" stroke="#a3a3a3" strokeWidth="3" vectorEffect="non-scaling-stroke" />
-          <polyline points={pointsFor(recent)} fill="none" stroke="#000000" strokeWidth="4" vectorEffect="non-scaling-stroke" />
-          {last !== undefined ? (
-            <circle
-              cx={recent.length === 1 ? 50 : 98}
-              cy={100 - last.org_score * 100}
-              r="3"
-              fill="#ffffff"
-              stroke="#000000"
-              strokeWidth="3"
-              vectorEffect="non-scaling-stroke"
+      <div aria-label={aria} className="flex h-6 gap-1" role="img">
+        {Array.from({ length: 14 }, (_, index) => {
+          const sample = recent[index - (14 - recent.length)];
+          const score = sample === undefined || stale ? null : repoScore(sample);
+          const state =
+            score === null ? 'bg-zinc-200' : score === 1 ? 'bg-up' : score >= 0.75 ? 'bg-neo' : 'bg-down';
+          return (
+            <span
+              key={index}
+              className={`block flex-1 border-2 border-ink ${state}`}
+              title={sample === undefined ? 'No sample' : `${sample.score}/${sample.max}`}
             />
-          ) : (
-            <line x1="0" y1="96" x2="100" y2="96" stroke="#000000" strokeWidth="4" vectorEffect="non-scaling-stroke" />
-          )}
-        </svg>
-        <span>{formatPercent(last?.org_score ?? null)}</span>
+          );
+        })}
       </div>
     </div>
   );
 }
 
-function RepoCard({ repo, stale }: { repo: RepoHealth; stale: boolean }): ReactNode {
+function RepoCard({
+  repo,
+  reportHistory,
+  stale,
+}: {
+  repo: RepoHealth;
+  reportHistory: HealthReport[];
+  stale: boolean;
+}): ReactNode {
   return (
     <article className="flex min-h-[118px] flex-col justify-between gap-3 border-3 border-ink bg-paper p-3 shadow-hardSm">
       <div className="flex items-start justify-between gap-3">
@@ -140,22 +125,23 @@ function RepoCard({ repo, stale }: { repo: RepoHealth; stale: boolean }): ReactN
           ))
         )}
       </div>
+      <RepoTrend repoName={repo.name} reports={reportHistory} stale={stale} />
     </article>
   );
 }
 
 export function HealthTable({
   report,
-  history,
+  reportHistory,
   loading,
   stale,
 }: {
   report: HealthReport | null;
-  history: HealthHistoryLine[];
+  reportHistory: HealthReport[];
   loading: boolean;
   stale: boolean;
 }): ReactNode {
-  const [nonCompliantOnly, setNonCompliantOnly] = useState(true);
+  const [nonCompliantOnly, setNonCompliantOnly] = useState(false);
   const [sort, setSort] = useState<SortMode>('score');
   const [group, setGroup] = useState<GroupMode>('none');
   const failingCount = report?.repos.filter((repo) => repo.fail.length > 0).length ?? 0;
@@ -190,16 +176,21 @@ export function HealthTable({
 
   return (
     <section className="space-y-3">
-      <div className="grid gap-3 border-3 border-ink bg-paper p-3 shadow-hard lg:grid-cols-[minmax(0,1fr)_208px_auto] lg:items-center">
-        <div className="min-w-0">
+      <div className="border-3 border-ink bg-paper p-3 text-center shadow-hard">
+        <div className="mx-auto max-w-3xl">
           <h2 className="font-display text-2xl font-bold uppercase">Repo Standards</h2>
           <p className="mt-1 font-display text-xs font-bold uppercase tabular opacity-70">
             {stale ? 'stale' : formatPercent(report.org_score)} score - {scopeSummary} - checked{' '}
             {formatRelativeTime(report.generated_at)}
           </p>
         </div>
-        <ScoreTrend history={history} />
-        <div className="flex flex-wrap gap-2 lg:justify-end">
+      </div>
+
+      <div className="flex flex-col gap-3 border-b-3 border-ink bg-neo px-3 py-2 md:flex-row md:items-center md:justify-between">
+        <div className="font-display text-xs font-bold uppercase">
+          {checkLabel(flatGroupLabel)} - {rows.length}
+        </div>
+        <div className="flex flex-wrap gap-2 md:justify-end">
           <ShellButton
             type="button"
             aria-pressed={nonCompliantOnly}
@@ -238,7 +229,7 @@ export function HealthTable({
             </div>
             <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
               {groupedRows.map((repo) => (
-                <RepoCard key={`${label}-${repo.name}`} repo={repo} stale={stale} />
+                <RepoCard key={`${label}-${repo.name}`} repo={repo} reportHistory={reportHistory} stale={stale} />
               ))}
             </div>
           </div>

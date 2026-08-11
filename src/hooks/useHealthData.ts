@@ -5,6 +5,7 @@ import { ageMinutes } from '@/lib/format';
 import {
   fetchHealthHistoryFromSupabase,
   fetchLatestHealthFromSupabase,
+  fetchRecentHealthReportsFromSupabase,
   hasSupabaseDataConfig,
 } from '@/lib/supabaseData';
 
@@ -15,6 +16,7 @@ const REFRESH_MS = 60_000;
 
 export interface HealthDataState {
   report: HealthReport | null;
+  reportHistory: HealthReport[];
   history: HealthHistoryLine[];
   error: string | null;
   loading: boolean;
@@ -59,21 +61,24 @@ async function fetchHistory(url: string): Promise<HealthHistoryLine[]> {
 
 async function fetchSupabaseHealth(): Promise<{
   report: HealthReport;
+  reportHistory: HealthReport[];
   history: HealthHistoryLine[];
 }> {
-  const [report, history] = await Promise.all([
+  const [report, reportHistory, history] = await Promise.all([
     fetchLatestHealthFromSupabase(),
+    fetchRecentHealthReportsFromSupabase(),
     fetchHealthHistoryFromSupabase(),
   ]);
   if (!isHealthReport(report)) {
     throw new Error('Supabase health data has an invalid schema');
   }
 
-  return { report, history };
+  return { report, reportHistory, history };
 }
 
 async function fetchLiveHealth(): Promise<{
   report: HealthReport;
+  reportHistory: HealthReport[];
   history: HealthHistoryLine[];
 }> {
   if (hasSupabaseDataConfig()) {
@@ -89,12 +94,13 @@ async function fetchLiveHealth(): Promise<{
     fetchHistory(`${DATA_BASE}/health-history.jsonl`),
   ]);
 
-  return { report, history };
+  return { report, reportHistory: [report], history };
 }
 
 export function useHealthData(): HealthDataState {
   const [state, setState] = useState<HealthDataState>({
     report: null,
+    reportHistory: [],
     history: [],
     error: null,
     loading: true,
@@ -107,11 +113,12 @@ export function useHealthData(): HealthDataState {
 
     async function load(): Promise<void> {
       try {
-        const { report, history } = await fetchLiveHealth();
+        const { report, reportHistory, history } = await fetchLiveHealth();
 
         if (alive) {
           setState({
             report,
+            reportHistory,
             history,
             error: null,
             loading: false,
@@ -125,6 +132,7 @@ export function useHealthData(): HealthDataState {
           if (alive) {
             setState({
               report,
+              reportHistory: [report],
               history: [],
               error: liveError instanceof Error ? liveError.message : 'live health unavailable',
               loading: false,
@@ -136,6 +144,7 @@ export function useHealthData(): HealthDataState {
           if (alive) {
             setState({
               report: null,
+              reportHistory: [],
               history: [],
               error:
                 snapshotError instanceof Error ? snapshotError.message : 'health data unavailable',

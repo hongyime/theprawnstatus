@@ -88,6 +88,19 @@ export async function fetchLatestHealthFromSupabase(): Promise<HealthReport> {
   return report as HealthReport;
 }
 
+export async function fetchRecentHealthReportsFromSupabase(limit = 30): Promise<HealthReport[]> {
+  const query = new URLSearchParams({
+    select: 'report',
+    order: 'generated_at.desc',
+    limit: String(limit),
+  });
+  const rows = await requestRows<HealthRunRow>('health_runs', query);
+  return rows
+    .map((row) => row.report as HealthReport)
+    .filter((report) => report.generated_at !== null)
+    .reverse();
+}
+
 export async function fetchHealthHistoryFromSupabase(): Promise<HealthHistoryLine[]> {
   const query = new URLSearchParams({
     select: 'd,org_score,repos,compliant,by_check',
