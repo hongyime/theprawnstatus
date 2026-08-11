@@ -6,7 +6,31 @@ describe('validateTargets', () => {
   it('defaults expect to 200', () => {
     expect(
       validateTargets([{ id: 'smuseats', name: 'SMU Seats', url: 'https://smuseats.hong-yi.me' }]),
-    ).toEqual([{ id: 'smuseats', name: 'SMU Seats', url: 'https://smuseats.hong-yi.me', expect: 200 }]);
+    ).toEqual([
+      { id: 'smuseats', name: 'SMU Seats', url: 'https://smuseats.hong-yi.me', expect: 200 },
+    ]);
+  });
+
+  it('allows redirect-only targets to stop at the first response', () => {
+    expect(
+      validateTargets([
+        {
+          id: 'redirects',
+          name: 'Redirects',
+          url: 'https://at.example.com',
+          expect: 308,
+          follow_redirects: false,
+        },
+      ]),
+    ).toEqual([
+      {
+        id: 'redirects',
+        name: 'Redirects',
+        url: 'https://at.example.com',
+        expect: 308,
+        follow_redirects: false,
+      },
+    ]);
   });
 
   it('rejects duplicate ids', () => {

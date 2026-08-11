@@ -2,6 +2,11 @@ import { useEffect, useState } from 'react';
 
 import type { HealthHistoryLine, HealthReport } from '@shared/types';
 import { ageMinutes } from '@/lib/format';
+import {
+  fetchHealthHistoryFromSupabase,
+  fetchLatestHealthFromSupabase,
+  hasSupabaseDataConfig,
+} from '@/lib/supabaseData';
 
 const DATA_BASE =
   import.meta.env.VITE_DATA_BASE ??
@@ -52,6 +57,41 @@ async function fetchHistory(url: string): Promise<HealthHistoryLine[]> {
     .map((line) => JSON.parse(line) as HealthHistoryLine);
 }
 
+async function fetchSupabaseHealth(): Promise<{
+  report: HealthReport;
+  history: HealthHistoryLine[];
+}> {
+  const [report, history] = await Promise.all([
+    fetchLatestHealthFromSupabase(),
+    fetchHealthHistoryFromSupabase(),
+  ]);
+  if (!isHealthReport(report)) {
+    throw new Error('Supabase health data has an invalid schema');
+  }
+
+  return { report, history };
+}
+
+async function fetchLiveHealth(): Promise<{
+  report: HealthReport;
+  history: HealthHistoryLine[];
+}> {
+  if (hasSupabaseDataConfig()) {
+    try {
+      return await fetchSupabaseHealth();
+    } catch {
+      // Fall through to the existing Git-backed feed during migration.
+    }
+  }
+
+  const [report, history] = await Promise.all([
+    fetchJson(`${DATA_BASE}/health.json`, isHealthReport),
+    fetchHistory(`${DATA_BASE}/health-history.jsonl`),
+  ]);
+
+  return { report, history };
+}
+
 export function useHealthData(): HealthDataState {
   const [state, setState] = useState<HealthDataState>({
     report: null,
@@ -67,10 +107,7 @@ export function useHealthData(): HealthDataState {
 
     async function load(): Promise<void> {
       try {
-        const [report, history] = await Promise.all([
-          fetchJson(`${DATA_BASE}/health.json`, isHealthReport),
-          fetchHistory(`${DATA_BASE}/health-history.jsonl`),
-        ]);
+        const { report, history } = await fetchLiveHealth();
 
         if (alive) {
           setState({
@@ -100,7 +137,8 @@ export function useHealthData(): HealthDataState {
             setState({
               report: null,
               history: [],
-              error: snapshotError instanceof Error ? snapshotError.message : 'health data unavailable',
+              error:
+                snapshotError instanceof Error ? snapshotError.message : 'health data unavailable',
               loading: false,
               source: null,
               stale: true,

@@ -26,3 +26,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           HEALTH_PAT: ${{ secrets.HEALTH_PAT }}
+          STATUS_STORAGE: ${{ vars.STATUS_STORAGE }}
+          STATUS_RUNNER: ${{ vars.STATUS_RUNNER }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}

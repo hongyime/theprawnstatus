@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 
 import type { Summary } from '@shared/types';
 import { ageMinutes } from '@/lib/format';
+import { fetchLatestSummaryFromSupabase, hasSupabaseDataConfig } from '@/lib/supabaseData';
 
 const SUMMARY_URL =
   import.meta.env.VITE_SUMMARY_URL ??
@@ -43,6 +44,27 @@ async function fetchSummary(url: string): Promise<Summary> {
   return data;
 }
 
+async function fetchSupabaseSummary(): Promise<Summary> {
+  const data = await fetchLatestSummaryFromSupabase();
+  if (!isSummary(data)) {
+    throw new Error('Supabase status data has an invalid schema');
+  }
+
+  return data;
+}
+
+async function fetchLiveSummary(): Promise<Summary> {
+  if (hasSupabaseDataConfig()) {
+    try {
+      return await fetchSupabaseSummary();
+    } catch {
+      // Fall through to the existing Git-backed feed during migration.
+    }
+  }
+
+  return fetchSummary(SUMMARY_URL);
+}
+
 export function useStatusData(): StatusDataState {
   const [state, setState] = useState<StatusDataState>({
     data: null,
@@ -57,7 +79,7 @@ export function useStatusData(): StatusDataState {
 
     async function load(): Promise<void> {
       try {
-        const live = await fetchSummary(SUMMARY_URL);
+        const live = await fetchLiveSummary();
         if (alive) {
           setState({
             data: live,
@@ -83,7 +105,8 @@ export function useStatusData(): StatusDataState {
           if (alive) {
             setState({
               data: null,
-              error: snapshotError instanceof Error ? snapshotError.message : 'status data unavailable',
+              error:
+                snapshotError instanceof Error ? snapshotError.message : 'status data unavailable',
               loading: false,
               source: null,
               stale: true,

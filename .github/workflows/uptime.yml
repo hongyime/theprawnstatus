@@ -40,6 +40,11 @@ jobs:
       - run: npm run check:uptime
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          STATUS_STORAGE: ${{ vars.STATUS_STORAGE }}
+          STATUS_RUNNER: ${{ vars.STATUS_RUNNER }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
 
   rebuild:
     if: github.event_name == 'workflow_dispatch' && inputs.job == 'rebuild' || github.event_name == 'schedule' && github.event.schedule == '20 0 * * *'
@@ -54,3 +59,8 @@ jobs:
       - run: npm run rebuild:summary
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          STATUS_STORAGE: ${{ vars.STATUS_STORAGE }}
+          STATUS_RUNNER: ${{ vars.STATUS_RUNNER }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}

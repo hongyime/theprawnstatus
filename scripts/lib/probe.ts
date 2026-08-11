@@ -74,6 +74,7 @@ async function fetchWithRedirects(
   url: string,
   fetchImpl: typeof fetch,
   signal: AbortSignal,
+  followRedirects: boolean,
 ): Promise<Response> {
   let current = url;
 
@@ -87,7 +88,7 @@ async function fetchWithRedirects(
       },
     });
 
-    if (!isRedirect(response.status)) {
+    if (!followRedirects || !isRedirect(response.status)) {
       return response;
     }
 
@@ -106,11 +107,19 @@ async function fetchWithRedirects(
   throw new DOMException('Too many redirects', 'AbortError');
 }
 
-async function runAttempt(target: TargetConfig, options: Required<ProbeOptions>): Promise<AttemptResult> {
+async function runAttempt(
+  target: TargetConfig,
+  options: Required<ProbeOptions>,
+): Promise<AttemptResult> {
   const started = options.nowMs();
   try {
     const signal = AbortSignal.timeout(options.timeoutMs);
-    const response = await fetchWithRedirects(target.url, options.fetchImpl, signal);
+    const response = await fetchWithRedirects(
+      target.url,
+      options.fetchImpl,
+      signal,
+      target.follow_redirects !== false,
+    );
     return {
       status: response.status,
       ms: Math.round(options.nowMs() - started),
@@ -124,7 +133,10 @@ async function runAttempt(target: TargetConfig, options: Required<ProbeOptions>)
   }
 }
 
-export async function probe(target: TargetConfig, options: ProbeOptions = {}): Promise<ProbeRecord> {
+export async function probe(
+  target: TargetConfig,
+  options: ProbeOptions = {},
+): Promise<ProbeRecord> {
   const resolved: Required<ProbeOptions> = {
     fetchImpl: options.fetchImpl ?? fetch,
     now: options.now ?? (() => new Date().toISOString()),

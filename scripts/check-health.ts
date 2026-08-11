@@ -6,6 +6,8 @@ import { withDataBranch } from './lib/data-branch';
 import { evaluateHealth, historyLineFromReport, upsertHealthHistoryLine } from './lib/health';
 import { fetchOrgRepoFacts, GithubClient } from './lib/github';
 import { knownCheckIds } from './lib/checks';
+import { shouldWriteGit, shouldWriteSupabase, storageMode } from './lib/storage-mode';
+import { hasSupabaseWriteConfig, writeHealthToSupabase } from './lib/supabase-store';
 
 async function readOptionalFile(filePath: string): Promise<string> {
   try {
@@ -19,6 +21,7 @@ async function readOptionalFile(filePath: string): Promise<string> {
 }
 
 async function main(): Promise<void> {
+  const mode = storageMode();
   const token = process.env.HEALTH_PAT;
   if (token === undefined || token.trim() === '') {
     throw new Error('HEALTH_PAT is required for repo health checks');
@@ -36,17 +39,30 @@ async function main(): Promise<void> {
   const report = evaluateHealth(facts, standard, now);
   const historyLine = historyLineFromReport(report, now);
 
-  await withDataBranch({
-    commitMessage: `chore(data): health ${now.toISOString()}`,
-    sparsePaths: ['health.json', 'health-history.jsonl'],
-  }, async ({ dir }) => {
-    const healthPath = path.join(dir, 'health.json');
-    const historyPath = path.join(dir, 'health-history.jsonl');
-    const history = await readOptionalFile(historyPath);
+  if (shouldWriteGit(mode)) {
+    await withDataBranch(
+      {
+        commitMessage: `chore(data): health ${now.toISOString()}`,
+        sparsePaths: ['health.json', 'health-history.jsonl'],
+      },
+      async ({ dir }) => {
+        const healthPath = path.join(dir, 'health.json');
+        const historyPath = path.join(dir, 'health-history.jsonl');
+        const history = await readOptionalFile(historyPath);
 
-    await writeFile(healthPath, `${JSON.stringify(report, null, 2)}\n`, 'utf8');
-    await writeFile(historyPath, upsertHealthHistoryLine(history, historyLine), 'utf8');
-  });
+        await writeFile(healthPath, `${JSON.stringify(report, null, 2)}\n`, 'utf8');
+        await writeFile(historyPath, upsertHealthHistoryLine(history, historyLine), 'utf8');
+      },
+    );
+  }
+
+  if (shouldWriteSupabase(mode)) {
+    if (!hasSupabaseWriteConfig()) {
+      throw new Error('Supabase write config is missing');
+    }
+
+    await writeHealthToSupabase(report, historyLine);
+  }
 }
 
 main().catch((error: unknown) => {

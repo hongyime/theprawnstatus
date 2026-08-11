@@ -87,7 +87,9 @@
   {
     "id": "theprawnredirects",
     "name": "The Prawn Redirects",
-    "url": "https://at.hong-yi.me"
+    "url": "https://at.hong-yi.me",
+    "expect": 308,
+    "follow_redirects": false
   },
   {
     "id": "theprawnstatus",

@@ -1,6 +1,12 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
+import {
+  hasSupabaseReadConfig,
+  readLatestHealthFromSupabase,
+  readLatestSummaryFromSupabase,
+} from './lib/supabase-store';
+
 const DATA_BASE = 'https://raw.githubusercontent.com/hongyime/theprawnstatus/data';
 
 async function fetchJson(url: string): Promise<unknown | null> {
@@ -27,9 +33,27 @@ async function ensureSnapshot(filePath: string, fallback: unknown): Promise<void
   }
 }
 
+async function fetchSupabaseSnapshot(fileName: string): Promise<unknown | null> {
+  if (!hasSupabaseReadConfig()) {
+    return null;
+  }
+
+  try {
+    return fileName === 'snapshot.json'
+      ? await readLatestSummaryFromSupabase()
+      : await readLatestHealthFromSupabase();
+  } catch {
+    return null;
+  }
+}
+
 async function writeSnapshot(fileName: string, fallback: unknown): Promise<void> {
   const filePath = path.join('public', fileName);
-  const remote = await fetchJson(`${DATA_BASE}/${fileName === 'snapshot.json' ? 'summary.json' : 'health.json'}`);
+  const remote =
+    (await fetchSupabaseSnapshot(fileName)) ??
+    (await fetchJson(
+      `${DATA_BASE}/${fileName === 'snapshot.json' ? 'summary.json' : 'health.json'}`,
+    ));
   await mkdir(path.dirname(filePath), { recursive: true });
 
   if (remote === null) {

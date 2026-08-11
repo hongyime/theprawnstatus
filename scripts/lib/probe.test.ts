@@ -49,7 +49,9 @@ describe('probe', () => {
   });
 
   it('classifies timeout as a response-less failure', async () => {
-    const fetchImpl = vi.fn<typeof fetch>().mockRejectedValue(new DOMException('timed out', 'TimeoutError'));
+    const fetchImpl = vi
+      .fn<typeof fetch>()
+      .mockRejectedValue(new DOMException('timed out', 'TimeoutError'));
 
     await expect(probe(target, testOptions(fetchImpl))).resolves.toMatchObject({
       s: null,
@@ -79,6 +81,24 @@ describe('probe', () => {
     expect(record).toMatchObject({ s: 200 });
     expect(record).not.toHaveProperty('e');
     expect(fetchImpl).toHaveBeenCalledTimes(2);
+  });
+
+  it('can treat a redirect response as the health signal', async () => {
+    const fetchImpl = vi.fn<typeof fetch>().mockResolvedValue(
+      new Response('', {
+        status: 308,
+        headers: { location: 'https://destination.example.com' },
+      }),
+    );
+
+    const record = await probe(
+      { ...target, expect: 308, follow_redirects: false },
+      testOptions(fetchImpl),
+    );
+
+    expect(record).toMatchObject({ s: 308 });
+    expect(record).not.toHaveProperty('e');
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
   });
 
   it('returns one response-less failure when every attempt fails', async () => {

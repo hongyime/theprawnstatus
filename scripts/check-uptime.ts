@@ -5,6 +5,7 @@ import type { ProbeRecord, Summary, TargetConfig } from '../shared/types';
 import { loadTargets } from './lib/config';
 import { withDataBranch } from './lib/data-branch';
 import { probe } from './lib/probe';
+import { shouldWriteGit, shouldWriteSupabase, storageMode } from './lib/storage-mode';
 import {
   applyIncrement,
   emptySummary,
@@ -13,6 +14,12 @@ import {
   stringifyJsonl,
   utcDay,
 } from './lib/summary';
+import {
+  hasSupabaseWriteConfig,
+  readLatestSummaryFromSupabase,
+  readProbeRecordsForDayFromSupabase,
+  writeUptimeToSupabase,
+} from './lib/supabase-store';
 
 const CONCURRENCY = 5;
 
@@ -62,7 +69,15 @@ async function readJsonlFile(filePath: string): Promise<ProbeRecord[]> {
   }
 }
 
-async function main(): Promise<void> {
+interface ProbeBatch {
+  targets: TargetConfig[];
+  now: Date;
+  day: string;
+  shardPath: string;
+  records: ProbeRecord[];
+}
+
+async function collectProbeBatch(): Promise<ProbeBatch> {
   const targets = await loadTargets();
   const now = new Date();
   const day = utcDay(now);
@@ -73,21 +88,66 @@ async function main(): Promise<void> {
     async (target) => probe(target),
   );
 
-  await withDataBranch({
-    commitMessage: `chore(data): uptime ${now.toISOString()}`,
-    sparsePaths: ['summary.json', shardPath],
-  }, async ({ dir }) => {
-    const absoluteShard = path.join(dir, shardPath);
-    const absoluteSummary = path.join(dir, 'summary.json');
-    const existingSummary = await readJsonFile<Summary>(absoluteSummary, emptySummary());
-    const existingRecords = await readJsonlFile(absoluteShard);
-    const allTodayRecords = [...existingRecords, ...records];
-    const summary = applyIncrement(existingSummary, records, now, targets, allTodayRecords);
+  return { targets, now, day, shardPath, records };
+}
 
-    await mkdir(path.dirname(absoluteShard), { recursive: true });
-    await writeFile(absoluteShard, stringifyJsonl(allTodayRecords), 'utf8');
-    await writeFile(absoluteSummary, `${JSON.stringify(summary, null, 2)}\n`, 'utf8');
-  });
+async function writeGitData(batch: ProbeBatch): Promise<void> {
+  await withDataBranch(
+    {
+      commitMessage: `chore(data): uptime ${batch.now.toISOString()}`,
+      sparsePaths: ['summary.json', batch.shardPath],
+    },
+    async ({ dir }) => {
+      const absoluteShard = path.join(dir, batch.shardPath);
+      const absoluteSummary = path.join(dir, 'summary.json');
+      const existingSummary = await readJsonFile<Summary>(absoluteSummary, emptySummary());
+      const existingRecords = await readJsonlFile(absoluteShard);
+      const allTodayRecords = [...existingRecords, ...batch.records];
+      const summary = applyIncrement(
+        existingSummary,
+        batch.records,
+        batch.now,
+        batch.targets,
+        allTodayRecords,
+      );
+
+      await mkdir(path.dirname(absoluteShard), { recursive: true });
+      await writeFile(absoluteShard, stringifyJsonl(allTodayRecords), 'utf8');
+      await writeFile(absoluteSummary, `${JSON.stringify(summary, null, 2)}\n`, 'utf8');
+    },
+  );
+}
+
+async function writeSupabaseData(batch: ProbeBatch): Promise<void> {
+  if (!hasSupabaseWriteConfig()) {
+    throw new Error('Supabase write config is missing');
+  }
+
+  const existingSummary = (await readLatestSummaryFromSupabase()) ?? emptySummary();
+  const existingRecords = await readProbeRecordsForDayFromSupabase(batch.day);
+  const allTodayRecords = [...existingRecords, ...batch.records];
+  const summary = applyIncrement(
+    existingSummary,
+    batch.records,
+    batch.now,
+    batch.targets,
+    allTodayRecords,
+  );
+
+  await writeUptimeToSupabase(summary, batch.records, batch.now);
+}
+
+async function main(): Promise<void> {
+  const mode = storageMode();
+  const batch = await collectProbeBatch();
+
+  if (shouldWriteGit(mode)) {
+    await writeGitData(batch);
+  }
+
+  if (shouldWriteSupabase(mode)) {
+    await writeSupabaseData(batch);
+  }
 }
 
 main().catch((error: unknown) => {

@@ -57,6 +57,7 @@ export function validateTargets(input: unknown): TargetConfig[] {
     const name = readString(raw.name, `target[${index}].name`, errors);
     const url = readString(raw.url, `target[${index}].url`, errors);
     const expectedStatus = raw.expect === undefined ? 200 : raw.expect;
+    const followRedirects = raw.follow_redirects === undefined ? true : raw.follow_redirects;
 
     if (id !== null) {
       if (!TARGET_ID_PATTERN.test(id)) {
@@ -90,11 +91,23 @@ export function validateTargets(input: unknown): TargetConfig[] {
       errors.push(`target[${index}].expect must be an HTTP status code`);
     }
 
+    if (typeof followRedirects !== 'boolean') {
+      errors.push(`target[${index}].follow_redirects must be a boolean`);
+    }
+
     if (id === null || name === null || url === null || typeof expectedStatus !== 'number') {
       return [];
     }
 
-    return [{ id, name, url, expect: expectedStatus }];
+    return [
+      {
+        id,
+        name,
+        url,
+        expect: expectedStatus,
+        ...(followRedirects ? {} : { follow_redirects: false }),
+      },
+    ];
   });
 
   if (errors.length > 0) {
@@ -104,7 +117,10 @@ export function validateTargets(input: unknown): TargetConfig[] {
   return targets;
 }
 
-export function validateStandardConfig(input: unknown, knownCheckIds?: Set<string>): StandardConfig {
+export function validateStandardConfig(
+  input: unknown,
+  knownCheckIds?: Set<string>,
+): StandardConfig {
   const errors: string[] = [];
 
   if (!isRecord(input)) {

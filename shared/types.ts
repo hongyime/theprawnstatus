@@ -78,6 +78,7 @@ export interface TargetConfig {
   name: string;
   url: string;
   expect: number;
+  follow_redirects?: boolean;
 }
 
 export interface StandardCheckConfig {
