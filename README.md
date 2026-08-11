@@ -6,7 +6,7 @@ One board showing whether the Prawn deployments are running and whether the `hon
 - Technical design: [docs/technicaldesign.md](docs/technicaldesign.md)
 - Implementation tasks: [docs/tasks](docs/tasks)
 
-Uptime is sampled every ~15 minutes and is indicative, not an SLA.
+Uptime is sampled every ~5 minutes and is indicative, not an SLA.
 
 Live deployment: <https://theprawnstatus.vercel.app>
 

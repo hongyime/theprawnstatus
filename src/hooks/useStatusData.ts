@@ -8,7 +8,7 @@ const SUMMARY_URL =
   import.meta.env.VITE_SUMMARY_URL ??
   'https://raw.githubusercontent.com/hongyime/theprawnstatus/data/summary.json';
 const REFRESH_MS = 60_000;
-const STALE_MINUTES = 45;
+const STALE_MINUTES = 20;
 
 type Source = 'live' | 'snapshot';
 

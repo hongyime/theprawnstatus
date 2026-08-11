@@ -1,12 +1,12 @@
 name: uptime
 
-# Generated status data is committed to the orphan `data` branch, not `main`.
-# Keep `main` for source/config only; the guard-data-branch workflow blocks
-# accidental merges that bring `summary.json`, `health.json`, or `history/`
-# into `main`.
+# Generated status data is written to the configured status store, not `main`.
+# `STATUS_STORAGE=git` writes the orphan `data` branch; `supabase` writes the
+# Supabase status tables. The guard-data-branch workflow still blocks accidental
+# generated-data merges into `main`.
 on:
   schedule:
-    - cron: '3,18,33,48 * * * *'
+    - cron: '2-59/5 * * * *'
     - cron: '20 0 * * *'
   workflow_dispatch:
     inputs:
@@ -20,7 +20,7 @@ on:
           - rebuild
 
 concurrency:
-  group: data-branch
+  group: status-storage
   cancel-in-progress: false
 
 permissions:
@@ -28,7 +28,7 @@ permissions:
 
 jobs:
   uptime:
-    if: github.event_name == 'workflow_dispatch' && inputs.job == 'uptime' || github.event_name == 'schedule' && github.event.schedule == '3,18,33,48 * * * *'
+    if: github.event_name == 'workflow_dispatch' && inputs.job == 'uptime' || github.event_name == 'schedule' && github.event.schedule == '2-59/5 * * * *'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1

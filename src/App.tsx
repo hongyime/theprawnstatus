@@ -29,14 +29,18 @@ function App(): ReactNode {
           {status.source === 'snapshot' ? (
             <Banner tone="warn">Live status data unavailable; showing the build snapshot.</Banner>
           ) : null}
-          {status.stale ? <Banner tone="error">Status data is stale. Current state is not green.</Banner> : null}
+          {status.stale ? (
+            <Banner tone="error">Status data is stale. Current state is not green.</Banner>
+          ) : null}
           {status.error !== null && status.source === null ? (
             <Banner tone="error">Status data failed to load.</Banner>
           ) : null}
           {health.source === 'snapshot' ? (
             <Banner tone="warn">Live health data unavailable; showing the build snapshot.</Banner>
           ) : null}
-          {health.report !== null && health.stale ? <Banner tone="warn">Repo health data is stale.</Banner> : null}
+          {health.report !== null && health.stale ? (
+            <Banner tone="warn">Repo health data is stale.</Banner>
+          ) : null}
         </div>
 
         <section className="space-y-3">
@@ -44,7 +48,8 @@ function App(): ReactNode {
             <div>
               <h2 className="font-display text-2xl font-bold uppercase">Deployments</h2>
               <p className="font-display text-xs font-bold uppercase tabular opacity-70">
-                {loadedTargets.length} targets - scheduled ~15 min - stale after 45 min - page refreshes every 60s
+                {loadedTargets.length} targets - scheduled ~5 min - stale after 20 min - page
+                refreshes every 60s
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -60,7 +65,9 @@ function App(): ReactNode {
           </div>
 
           {status.loading ? (
-            <div className="border-3 border-ink bg-paper p-4 font-display font-bold uppercase shadow-hard">Loading status data</div>
+            <div className="border-3 border-ink bg-paper p-4 font-display font-bold uppercase shadow-hard">
+              Loading status data
+            </div>
           ) : loadedTargets.length === 0 ? (
             <div className="border-3 border-ink bg-paper p-4 font-display font-bold uppercase shadow-hard">
               No deployment samples yet
@@ -79,7 +86,12 @@ function App(): ReactNode {
           )}
         </section>
 
-        <HealthTable report={health.report} history={health.history} loading={health.loading} stale={health.stale} />
+        <HealthTable
+          report={health.report}
+          history={health.history}
+          loading={health.loading}
+          stale={health.stale}
+        />
       </main>
 
       <footer className="mx-auto max-w-7xl border-t-3 border-ink px-4 pb-12 pt-8 md:px-6">
