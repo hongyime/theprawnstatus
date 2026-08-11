@@ -1,37 +1,41 @@
 {
-  "generated_at": "2026-08-10T03:56:24.760Z",
+  "generated_at": "2026-08-11T04:25:27.605Z",
   "standard_version": "1.0.0",
   "schema": 1,
-  "org_score": 0.9084507042253521,
+  "org_score": 0.9931506849315068,
   "repos": [
     {
       "name": "anywheelsQR2020",
-      "score": 5,
+      "score": 6,
       "max": 6,
       "archived": false,
       "identity_clean": null,
-      "fail": [
-        "showcase_meets_standard"
-      ]
+      "fail": []
     },
     {
       "name": "attackpassword",
-      "score": 5,
+      "score": 6,
       "max": 6,
       "archived": false,
       "identity_clean": null,
-      "fail": [
-        "showcase_meets_standard"
-      ]
+      "fail": []
     },
     {
       "name": "chromedino",
+      "score": 6,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": []
+    },
+    {
+      "name": "ctfpawned",
       "score": 5,
       "max": 6,
       "archived": false,
       "identity_clean": null,
       "fail": [
-        "showcase_meets_standard"
+        "notice_names_organisation"
       ]
     },
     {
@@ -52,43 +56,35 @@
     },
     {
       "name": "emailvalidate",
-      "score": 5,
+      "score": 6,
       "max": 6,
       "archived": false,
       "identity_clean": null,
-      "fail": [
-        "showcase_meets_standard"
-      ]
+      "fail": []
     },
     {
       "name": "emailverification",
-      "score": 5,
+      "score": 6,
       "max": 6,
       "archived": false,
       "identity_clean": null,
-      "fail": [
-        "showcase_meets_standard"
-      ]
+      "fail": []
     },
     {
       "name": "englishDefinitions2021",
-      "score": 5,
+      "score": 6,
       "max": 6,
       "archived": false,
       "identity_clean": null,
-      "fail": [
-        "showcase_meets_standard"
-      ]
+      "fail": []
     },
     {
       "name": "englishwords",
-      "score": 5,
+      "score": 6,
       "max": 6,
       "archived": false,
       "identity_clean": null,
-      "fail": [
-        "showcase_meets_standard"
-      ]
+      "fail": []
     },
     {
       "name": "facetracker",
@@ -108,43 +104,35 @@
     },
     {
       "name": "gmailclient",
-      "score": 5,
+      "score": 6,
       "max": 6,
       "archived": false,
       "identity_clean": null,
-      "fail": [
-        "showcase_meets_standard"
-      ]
+      "fail": []
     },
     {
       "name": "gmaplists",
-      "score": 5,
+      "score": 6,
       "max": 6,
       "archived": false,
       "identity_clean": null,
-      "fail": [
-        "showcase_meets_standard"
-      ]
+      "fail": []
     },
     {
       "name": "infinityTabs2020",
-      "score": 5,
+      "score": 6,
       "max": 6,
       "archived": false,
       "identity_clean": null,
-      "fail": [
-        "showcase_meets_standard"
-      ]
+      "fail": []
     },
     {
       "name": "keyLogger2020",
-      "score": 5,
+      "score": 6,
       "max": 6,
       "archived": false,
       "identity_clean": null,
-      "fail": [
-        "showcase_meets_standard"
-      ]
+      "fail": []
     },
     {
       "name": "musicstream",
@@ -156,23 +144,19 @@
     },
     {
       "name": "nanyangNightStudy2020",
-      "score": 5,
+      "score": 6,
       "max": 6,
       "archived": false,
       "identity_clean": null,
-      "fail": [
-        "showcase_meets_standard"
-      ]
+      "fail": []
     },
     {
       "name": "networkScan2020",
-      "score": 5,
+      "score": 6,
       "max": 6,
       "archived": false,
       "identity_clean": null,
-      "fail": [
-        "showcase_meets_standard"
-      ]
+      "fail": []
     },
     {
       "name": "nusnetID2021",
@@ -184,13 +168,11 @@
     },
     {
       "name": "omegleFinder2021",
-      "score": 5,
+      "score": 6,
       "max": 6,
       "archived": false,
       "identity_clean": null,
-      "fail": [
-        "showcase_meets_standard"
-      ]
+      "fail": []
     },
     {
       "name": "patreonalive",
@@ -218,13 +200,11 @@
     },
     {
       "name": "playsplendor",
-      "score": 5,
+      "score": 6,
       "max": 6,
       "archived": false,
       "identity_clean": null,
-      "fail": [
-        "showcase_meets_standard"
-      ]
+      "fail": []
     },
     {
       "name": "pocketclawd",
@@ -244,103 +224,83 @@
     },
     {
       "name": "pokemonpacks",
-      "score": 5,
+      "score": 6,
       "max": 6,
       "archived": false,
       "identity_clean": null,
-      "fail": [
-        "showcase_meets_standard"
-      ]
+      "fail": []
     },
     {
       "name": "pythoncrash",
-      "score": 5,
+      "score": 6,
       "max": 6,
       "archived": false,
       "identity_clean": null,
-      "fail": [
-        "showcase_meets_standard"
-      ]
+      "fail": []
     },
     {
       "name": "rainbowchess",
-      "score": 5,
+      "score": 6,
       "max": 6,
       "archived": false,
       "identity_clean": null,
-      "fail": [
-        "showcase_meets_standard"
-      ]
+      "fail": []
     },
     {
       "name": "ramenreviews",
-      "score": 5,
+      "score": 6,
       "max": 6,
       "archived": false,
       "identity_clean": null,
-      "fail": [
-        "showcase_meets_standard"
-      ]
+      "fail": []
     },
     {
       "name": "removeaudio",
-      "score": 5,
+      "score": 6,
       "max": 6,
       "archived": false,
       "identity_clean": null,
-      "fail": [
-        "showcase_meets_standard"
-      ]
+      "fail": []
     },
     {
       "name": "renamephotos",
-      "score": 5,
+      "score": 6,
       "max": 6,
       "archived": false,
       "identity_clean": null,
-      "fail": [
-        "showcase_meets_standard"
-      ]
+      "fail": []
     },
     {
       "name": "safeEntry2020",
-      "score": 5,
+      "score": 6,
       "max": 6,
       "archived": false,
       "identity_clean": null,
-      "fail": [
-        "showcase_meets_standard"
-      ]
+      "fail": []
     },
     {
       "name": "searchIG2020",
-      "score": 5,
+      "score": 6,
       "max": 6,
       "archived": false,
       "identity_clean": null,
-      "fail": [
-        "showcase_meets_standard"
-      ]
+      "fail": []
     },
     {
       "name": "sgAveroTech2021",
-      "score": 5,
+      "score": 6,
       "max": 6,
       "archived": false,
       "identity_clean": null,
-      "fail": [
-        "showcase_meets_standard"
-      ]
+      "fail": []
     },
     {
       "name": "sgBusLaoBu2021",
-      "score": 5,
+      "score": 6,
       "max": 6,
       "archived": false,
       "identity_clean": null,
-      "fail": [
-        "showcase_meets_standard"
-      ]
+      "fail": []
     },
     {
       "name": "sgCampusCore2026",
@@ -352,43 +312,46 @@
     },
     {
       "name": "sgCarParks2020",
-      "score": 5,
+      "score": 6,
+      "max": 6,
+      "archived": false,
+      "identity_clean": null,
+      "fail": []
+    },
+    {
+      "name": "sgCertWatch2026",
+      "score": 4,
       "max": 6,
       "archived": false,
       "identity_clean": null,
       "fail": [
-        "showcase_meets_standard"
+        "notice_names_organisation",
+        "readme_meets_standard"
       ]
     },
     {
       "name": "sgNRIC2003",
-      "score": 5,
+      "score": 6,
       "max": 6,
       "archived": false,
       "identity_clean": null,
-      "fail": [
-        "showcase_meets_standard"
-      ]
+      "fail": []
     },
     {
       "name": "sgNRICgenerator65",
-      "score": 5,
+      "score": 6,
       "max": 6,
       "archived": false,
       "identity_clean": null,
-      "fail": [
-        "showcase_meets_standard"
-      ]
+      "fail": []
     },
     {
       "name": "sgNumbers2020",
-      "score": 5,
+      "score": 6,
       "max": 6,
       "archived": false,
       "identity_clean": null,
-      "fail": [
-        "showcase_meets_standard"
-      ]
+      "fail": []
     },
     {
       "name": "sgPayNowQR65",
@@ -400,33 +363,27 @@
     },
     {
       "name": "sgPhoneNumbers65",
-      "score": 5,
+      "score": 6,
       "max": 6,
       "archived": false,
       "identity_clean": null,
-      "fail": [
-        "showcase_meets_standard"
-      ]
+      "fail": []
     },
     {
       "name": "sgPostalCodes2017",
-      "score": 5,
+      "score": 6,
       "max": 6,
       "archived": false,
       "identity_clean": null,
-      "fail": [
-        "showcase_meets_standard"
-      ]
+      "fail": []
     },
     {
       "name": "sgSchools2020",
-      "score": 5,
+      "score": 6,
       "max": 6,
       "archived": false,
       "identity_clean": null,
-      "fail": [
-        "showcase_meets_standard"
-      ]
+      "fail": []
     },
     {
       "name": "sgSHIOK2026",
@@ -502,13 +459,11 @@
     },
     {
       "name": "theprawnfeeds",
-      "score": 5,
+      "score": 6,
       "max": 6,
       "archived": false,
       "identity_clean": null,
-      "fail": [
-        "showcase_meets_standard"
-      ]
+      "fail": []
     },
     {
       "name": "theprawngame",
@@ -552,15 +507,11 @@
     },
     {
       "name": "theprawnstatus",
-      "score": 3,
+      "score": 6,
       "max": 6,
       "archived": false,
       "identity_clean": null,
-      "fail": [
-        "notice_names_organisation",
-        "description_is_real",
-        "topics_match_vocabulary"
-      ]
+      "fail": []
     },
     {
       "name": "theprawnsurprise",
@@ -620,33 +571,27 @@
     },
     {
       "name": "websiteDOS2019",
-      "score": 5,
+      "score": 6,
       "max": 6,
       "archived": false,
       "identity_clean": null,
-      "fail": [
-        "showcase_meets_standard"
-      ]
+      "fail": []
     },
     {
       "name": "wordleguesser",
-      "score": 5,
+      "score": 6,
       "max": 6,
       "archived": false,
       "identity_clean": null,
-      "fail": [
-        "showcase_meets_standard"
-      ]
+      "fail": []
     },
     {
       "name": "youtubepublisher",
-      "score": 5,
+      "score": 6,
       "max": 6,
       "archived": false,
       "identity_clean": null,
-      "fail": [
-        "showcase_meets_standard"
-      ]
+      "fail": []
     }
   ]
 }
