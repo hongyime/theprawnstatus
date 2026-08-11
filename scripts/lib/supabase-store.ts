@@ -118,11 +118,12 @@ async function requestJson<T>(
     throw new Error(`Supabase ${table} request failed with ${response.status}: ${body}`);
   }
 
-  if (response.status === 204) {
+  const text = await response.text();
+  if (text.trim() === '') {
     return undefined as T;
   }
 
-  return (await response.json()) as T;
+  return JSON.parse(text) as T;
 }
 
 async function selectRows<T>(
