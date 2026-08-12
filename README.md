@@ -10,6 +10,8 @@ Uptime is sampled every ~5 minutes and is indicative, not an SLA.
 
 Live deployment: <https://theprawnstatus.vercel.app>
 
+![theprawnstatus dashboard screenshot](./screenshot.png)
+
 ## Local development
 
 ```powershell
