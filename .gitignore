@@ -13,10 +13,16 @@ data-wt*/
 
 .vercel
 
+
 # AI / editor dot directories (managed via sourcerepo)
 .*
 !.github/
 !.agents/
+.agents/*
+!.agents/STATE.md
+!.agents/JOURNAL.md
+!.agents/handoffs/
+!.agents/handoffs/**
 !.gitignore
 !.gitattributes
 !.gitmodules
@@ -42,3 +48,4 @@ data-wt*/
 skills/
 skills-lock.json
 docs/
+# End AI / editor dot directories (managed via sourcerepo)
