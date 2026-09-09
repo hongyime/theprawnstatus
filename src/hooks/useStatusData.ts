@@ -3,11 +3,12 @@ import { useEffect, useState } from 'react';
 import type { Summary } from '@shared/types';
 import { ageMinutes } from '@/lib/format';
 import { fetchLatestSummaryFromSupabase, hasSupabaseDataConfig } from '@/lib/supabaseData';
+import { startVisiblePolling } from '@/lib/visiblePolling';
 
 const SUMMARY_URL =
   import.meta.env.VITE_SUMMARY_URL ??
   'https://raw.githubusercontent.com/hongyime/theprawnstatus/data/summary.json';
-const REFRESH_MS = 60_000;
+const REFRESH_MS = 120_000;
 const STALE_MINUTES = 20;
 
 type Source = 'live' | 'snapshot';
@@ -77,7 +78,7 @@ export function useStatusData(): StatusDataState {
   useEffect(() => {
     let alive = true;
 
-    async function load(): Promise<void> {
+    async function load(): Promise<boolean> {
       try {
         const live = await fetchLiveSummary();
         if (alive) {
@@ -89,6 +90,7 @@ export function useStatusData(): StatusDataState {
             stale: (ageMinutes(live.generated_at) ?? Infinity) > STALE_MINUTES,
           });
         }
+        return true;
       } catch (liveError) {
         try {
           const snapshot = await fetchSummary('/snapshot.json');
@@ -113,17 +115,15 @@ export function useStatusData(): StatusDataState {
             });
           }
         }
+        return false;
       }
     }
 
-    void load();
-    const interval = window.setInterval(() => {
-      void load();
-    }, REFRESH_MS);
+    const stopPolling = startVisiblePolling(load, REFRESH_MS);
 
     return () => {
       alive = false;
-      window.clearInterval(interval);
+      stopPolling();
     };
   }, []);
 

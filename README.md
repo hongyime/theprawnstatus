@@ -8,6 +8,12 @@ One board showing whether the Prawn deployments are running and whether the `hon
 
 Uptime is sampled every ~5 minutes and is indicative, not an SLA.
 
+The dashboard refreshes uptime data every 2 minutes and repository health/history every
+15 minutes while visible. Hidden tabs pause polling and refresh when revisited. Refreshes
+wait for the previous request chain to finish; failed refreshes back off to at most four
+times the normal interval and recover to the normal cadence after a successful read.
+The uptime sampling and repository checks run on their existing schedules.
+
 Live deployment: <https://theprawnstatus.vercel.app>
 
 ![theprawnstatus dashboard screenshot](./screenshot.png)

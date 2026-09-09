@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 
 import type { HealthHistoryLine, HealthReport } from '@shared/types';
 import { ageMinutes } from '@/lib/format';
+import { startVisiblePolling } from '@/lib/visiblePolling';
 import {
   fetchHealthHistoryFromSupabase,
   fetchLatestHealthFromSupabase,
@@ -12,7 +13,7 @@ import {
 const DATA_BASE =
   import.meta.env.VITE_DATA_BASE ??
   'https://raw.githubusercontent.com/hongyime/theprawnstatus/data';
-const REFRESH_MS = 60_000;
+const REFRESH_MS = 900_000;
 
 export interface HealthDataState {
   report: HealthReport | null;
@@ -111,7 +112,7 @@ export function useHealthData(): HealthDataState {
   useEffect(() => {
     let alive = true;
 
-    async function load(): Promise<void> {
+    async function load(): Promise<boolean> {
       try {
         const { report, reportHistory, history } = await fetchLiveHealth();
 
@@ -126,6 +127,7 @@ export function useHealthData(): HealthDataState {
             stale: (ageMinutes(report.generated_at) ?? Infinity) > 48 * 60,
           });
         }
+        return true;
       } catch (liveError) {
         try {
           const report = await fetchJson('/health-snapshot.json', isHealthReport);
@@ -154,17 +156,15 @@ export function useHealthData(): HealthDataState {
             });
           }
         }
+        return false;
       }
     }
 
-    void load();
-    const interval = window.setInterval(() => {
-      void load();
-    }, REFRESH_MS);
+    const stopPolling = startVisiblePolling(load, REFRESH_MS);
 
     return () => {
       alive = false;
-      window.clearInterval(interval);
+      stopPolling();
     };
   }, []);
 

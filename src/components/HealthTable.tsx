@@ -36,7 +36,11 @@ function sortedRows(rows: RepoHealth[], sort: SortMode): RepoHealth[] {
   });
 }
 
-function groupRows(rows: RepoHealth[], mode: GroupMode, flatLabel: string): Array<[string, RepoHealth[]]> {
+function groupRows(
+  rows: RepoHealth[],
+  mode: GroupMode,
+  flatLabel: string,
+): Array<[string, RepoHealth[]]> {
   if (mode === 'none') {
     return [[flatLabel, rows]];
   }
@@ -58,24 +62,43 @@ function repoTrend(repoName: string, reports: HealthReport[]): RepoHealth[] {
     .filter((repo): repo is RepoHealth => repo !== undefined);
 }
 
-function RepoTrend({ repoName, reports, stale }: { repoName: string; reports: HealthReport[]; stale: boolean }): ReactNode {
+function RepoTrend({
+  repoName,
+  reports,
+  stale,
+}: {
+  repoName: string;
+  reports: HealthReport[];
+  stale: boolean;
+}): ReactNode {
   const recent = repoTrend(repoName, reports).slice(-14);
-  const aria = recent.length === 0
-    ? `${repoName} has no recent standards samples.`
-    : `${repoName} standards trend with ${recent.length} sample${recent.length === 1 ? '' : 's'}.`;
+  const aria =
+    recent.length === 0
+      ? `${repoName} has no recent standards samples.`
+      : `${repoName} standards trend with ${recent.length} sample${recent.length === 1 ? '' : 's'}.`;
 
   return (
     <div className="space-y-1">
       <div className="flex items-center justify-between gap-2 font-display text-[10px] font-bold uppercase tabular opacity-70">
         <span>trend</span>
-        <span>{recent.length === 0 ? 'no samples' : `${recent.length} sample${recent.length === 1 ? '' : 's'}`}</span>
+        <span>
+          {recent.length === 0
+            ? 'no samples'
+            : `${recent.length} sample${recent.length === 1 ? '' : 's'}`}
+        </span>
       </div>
       <div aria-label={aria} className="flex h-6 gap-1" role="img">
         {Array.from({ length: 14 }, (_, index) => {
           const sample = recent[index - (14 - recent.length)];
           const score = sample === undefined || stale ? null : repoScore(sample);
           const state =
-            score === null ? 'bg-zinc-200' : score === 1 ? 'bg-up' : score >= 0.75 ? 'bg-neo' : 'bg-down';
+            score === null
+              ? 'bg-zinc-200'
+              : score === 1
+                ? 'bg-up'
+                : score >= 0.75
+                  ? 'bg-neo'
+                  : 'bg-down';
           return (
             <span
               key={index}
@@ -159,7 +182,11 @@ export function HealthTable({
   }, [nonCompliantOnly, report, sort]);
 
   if (loading) {
-    return <div className="border-3 border-ink bg-paper p-4 font-display font-bold uppercase shadow-hard">Loading health data</div>;
+    return (
+      <div className="border-3 border-ink bg-paper p-4 font-display font-bold uppercase shadow-hard">
+        Loading health data
+      </div>
+    );
   }
 
   if (report === null || report.generated_at === null) {
@@ -181,7 +208,7 @@ export function HealthTable({
           <h2 className="font-display text-2xl font-bold uppercase">Repo Standards</h2>
           <p className="mt-1 font-display text-xs font-bold uppercase tabular opacity-70">
             {stale ? 'stale' : formatPercent(report.org_score)} score - {scopeSummary} - checked{' '}
-            {formatRelativeTime(report.generated_at)}
+            {formatRelativeTime(report.generated_at)} - refreshes every 15 min while visible
           </p>
         </div>
       </div>
@@ -194,7 +221,9 @@ export function HealthTable({
           <ShellButton
             type="button"
             aria-pressed={nonCompliantOnly}
-            className={nonCompliantOnly ? 'bg-neo shadow-none translate-x-[2px] translate-y-[3px]' : ''}
+            className={
+              nonCompliantOnly ? 'bg-neo shadow-none translate-x-[2px] translate-y-[3px]' : ''
+            }
             onClick={() => setNonCompliantOnly((value) => !value)}
           >
             <Filter aria-hidden="true" className="h-4 w-4" />
@@ -229,7 +258,12 @@ export function HealthTable({
             </div>
             <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
               {groupedRows.map((repo) => (
-                <RepoCard key={`${label}-${repo.name}`} repo={repo} reportHistory={reportHistory} stale={stale} />
+                <RepoCard
+                  key={`${label}-${repo.name}`}
+                  repo={repo}
+                  reportHistory={reportHistory}
+                  stale={stale}
+                />
               ))}
             </div>
           </div>

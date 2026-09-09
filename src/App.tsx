@@ -49,7 +49,7 @@ function App(): ReactNode {
               <h2 className="font-display text-2xl font-bold uppercase">Deployments</h2>
               <p className="font-display text-xs font-bold uppercase tabular opacity-70">
                 {loadedTargets.length} targets - scheduled every 5 min - stale after 20 min - page
-                refreshes every 60s
+                refreshes every 2 min while visible
               </p>
             </div>
           </div>
