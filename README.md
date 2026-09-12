@@ -101,3 +101,8 @@ Current production build payload:
 - CSS: 3.32 KB gzip
 
 Budget: under 1 second to interactive on a cold cache.
+
+
+### Keyboard navigation and motion
+
+Use the first Tab stop to skip to status. Each uptime strip has a Daily history disclosure with UTC dates and exact check counts. The history opens with Enter/Space and can be scrolled with the keyboard. Reduced-motion preferences disable decorative card movement. These controls do not change display refresh rates or collection.
