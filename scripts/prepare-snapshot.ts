@@ -10,8 +10,11 @@ import {
 const DATA_BASE = 'https://raw.githubusercontent.com/hongyime/theprawnstatus/data';
 
 async function fetchJson(url: string): Promise<unknown | null> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 10_000);
   try {
     const response = await fetch(url, {
+      signal: controller.signal,
       headers: {
         'User-Agent': 'theprawnstatus-build',
       },
@@ -22,6 +25,8 @@ async function fetchJson(url: string): Promise<unknown | null> {
     return await response.json();
   } catch {
     return null;
+  } finally {
+    clearTimeout(timer);
   }
 }
 
