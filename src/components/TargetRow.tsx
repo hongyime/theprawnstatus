@@ -18,7 +18,7 @@ export function TargetRow({
   const p95Title = `p95 ${formatLatency(target.p95_ms)}`;
 
   return (
-    <article className="flex h-full min-h-[190px] flex-col gap-3 border-3 border-ink bg-paper p-3 shadow-hard transition-transform hover:translate-x-[3px] hover:translate-y-[4px] hover:shadow-hardSm">
+    <article className="flex h-full min-h-[190px] min-w-0 flex-col gap-3 border-3 border-ink bg-paper p-3 shadow-hard transition-transform hover:translate-x-[3px] hover:translate-y-[4px] hover:shadow-hardSm">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <a

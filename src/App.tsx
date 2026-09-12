@@ -13,6 +13,9 @@ function App(): ReactNode {
 
   return (
     <div className="min-h-screen">
+      <a className="skip-link focus-ring" href="#main-content">
+        Skip to status
+      </a>
       <header className="border-b-3 border-ink bg-paper">
         <div className="mx-auto flex max-w-7xl items-center justify-center overflow-hidden px-4 py-6 md:px-6 md:py-8">
           <h1 className="w-full whitespace-nowrap text-center font-display text-[8vw] font-bold uppercase leading-none tracking-normal sm:text-5xl md:text-7xl lg:text-8xl">
@@ -24,7 +27,11 @@ function App(): ReactNode {
         </div>
       </header>
 
-      <main className="mx-auto max-w-7xl space-y-5 px-4 py-5 md:px-6">
+      <main
+        id="main-content"
+        tabIndex={-1}
+        className="mx-auto max-w-7xl space-y-5 px-4 py-5 md:px-6"
+      >
         <div className="grid gap-2 md:grid-cols-2">
           {status.source === 'snapshot' ? (
             <Banner tone="warn">Live status data unavailable; showing the build snapshot.</Banner>
@@ -86,7 +93,7 @@ function App(): ReactNode {
 
       <footer className="mx-auto max-w-7xl border-t-3 border-ink px-4 pb-12 pt-8 md:px-6">
         <div className="flex flex-col items-center justify-center gap-4 text-center">
-          <h4 className="font-display text-3xl font-bold uppercase md:text-4xl">Get In Touch</h4>
+          <h2 className="font-display text-3xl font-bold uppercase md:text-4xl">Get In Touch</h2>
           <div className="flex flex-col items-center gap-2">
             <a
               className="focus-ring border-b-3 border-ink font-display text-base font-bold uppercase hover:bg-neo"

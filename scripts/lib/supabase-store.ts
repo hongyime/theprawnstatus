@@ -184,14 +184,23 @@ async function deleteRows(table: string, query: URLSearchParams): Promise<void> 
   });
 }
 
+async function selectLatestRow<T>(table: string, column: string): Promise<T | null> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 10_000);
+  try {
+    const query = new URLSearchParams({ select: column, order: 'generated_at.desc', limit: '1' });
+    const rows = await requestJson<T[]>(configFor('read'), table, query, {
+      signal: controller.signal,
+    });
+    return rows[0] ?? null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 export async function readLatestSummaryFromSupabase(): Promise<Summary | null> {
-  const query = new URLSearchParams({
-    select: 'summary',
-    order: 'generated_at.desc',
-    limit: '1',
-  });
-  const rows = await selectRows<StatusRunRow>('status_runs', query, 1);
-  const summary = rows[0]?.summary;
+  const row = await selectLatestRow<StatusRunRow>('status_runs', 'summary');
+  const summary = row?.summary;
   return summary === undefined ? null : (summary as unknown as Summary);
 }
 
@@ -279,13 +288,8 @@ export async function pruneSupabaseSamplesBefore(cutoff: Date): Promise<void> {
 }
 
 export async function readLatestHealthFromSupabase(): Promise<HealthReport | null> {
-  const query = new URLSearchParams({
-    select: 'report',
-    order: 'generated_at.desc',
-    limit: '1',
-  });
-  const rows = await selectRows<HealthRunRow>('health_runs', query, 1);
-  const report = rows[0]?.report;
+  const row = await selectLatestRow<HealthRunRow>('health_runs', 'report');
+  const report = row?.report;
   return report === undefined ? null : (report as unknown as HealthReport);
 }
 
