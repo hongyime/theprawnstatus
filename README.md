@@ -108,3 +108,5 @@ Budget: under 1 second to interactive on a cold cache.
 Use the first Tab stop to skip to status. Each uptime strip has a Daily history disclosure with UTC dates and exact check counts. The history opens with Enter/Space and can be scrolled with the keyboard. Reduced-motion preferences disable decorative card movement. These controls do not change display refresh rates or collection.
 
 Build snapshots request only the newest Supabase status/health row. Each read and Git fallback has a ten-second deadline covering headers and body; a failure preserves the existing valid snapshot or the established empty fallback. Historical probe readers retain complete pagination.
+
+Vercel applies the default cache/security headers first, then the HTML and content-hashed asset overrides. HTML remains uncached; `/assets/` files use immutable year-long caching. Snapshot feeds retain the general revalidation policy.
