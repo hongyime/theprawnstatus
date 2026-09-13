@@ -33,7 +33,7 @@
     "Use synthetic targets for fault tests; production scheduling changes require completed capacity, preservation and rollback checks."
   ],
   "production_mutations": true,
-  "stage": "platform_auth_followup",
+  "stage": "gateway_recovery_followup",
   "evidence": [
     "SCHEDULER.md",
     "tests/collector/README.md",
@@ -67,9 +67,23 @@
   },
   "storage_migration": "20260913100307",
   "production_merge": "4e03491a5748a03da58e533880f4c86fabd07acb",
-  "cron_enabled": false,
+  "cron_enabled": true,
   "atomic_github_variable_enabled": false,
   "auth_followup_merge": "db319694867e722cc4006099c14e8d4e3da27797",
   "edge_secret_write": "HTTP 403; not applied",
-  "unused_vault_secret": true
+  "unused_vault_secret": true,
+  "edge_version": 2,
+  "verify_jwt": true,
+  "recurring_successful_slots": ["2026-09-13T13:00:00Z", "2026-09-13T13:10:00Z"],
+  "recurring_failed_slot": {
+    "slot": "2026-09-13T13:05:00Z",
+    "cause": "Supabase REST gateway HTTP 504 before lease acquisition"
+  },
+  "original_data_preserved": true,
+  "monthly_free_tier_fit_proven": false,
+  "next_steps": [
+    "Check, merge and deploy bounded gateway recovery.",
+    "Observe consecutive slots while retaining the failed request evidence.",
+    "Review the pg_net namespace advisory without deleting records; sync preserved checkout and publish report 80."
+  ]
 }
