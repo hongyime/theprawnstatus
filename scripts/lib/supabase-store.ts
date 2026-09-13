@@ -5,6 +5,8 @@ import type {
   ProbeRecord,
   Summary,
 } from '../../shared/types';
+import { createCollectorRpc, createStatusCollector } from '../../shared/status-collector';
+import { atomicCollectorEnabled } from './collector-backend';
 
 const DEFAULT_PAGE_SIZE = 1000;
 const MAX_INSERT_ROWS = 500;
@@ -204,8 +206,76 @@ export async function readLatestSummaryFromSupabase(): Promise<Summary | null> {
   return summary === undefined ? null : (summary as unknown as Summary);
 }
 
+async function readBatchedProbeRecords(start: string, end: string): Promise<ProbeRecord[]> {
+  const rows: StatusSampleRow[] = [];
+  for (let offset = 0; ; offset += DEFAULT_PAGE_SIZE) {
+    const page = await requestJson<StatusSampleRow[]>(
+      configFor('write'),
+      'rpc/status_raw_window',
+      new URLSearchParams({
+        order: 'checked_at.asc,target_id.asc',
+        limit: String(DEFAULT_PAGE_SIZE),
+        offset: String(offset),
+      }),
+      {
+        method: 'POST',
+        signal: AbortSignal.timeout(30_000),
+        body: JSON.stringify({ p_runner: runner(), p_start: start, p_end: end }),
+      },
+    );
+    rows.push(...page);
+    if (page.length < DEFAULT_PAGE_SIZE) break;
+  }
+  return rows.map((row) => ({
+    t: row.checked_at,
+    id: row.target_id,
+    s: row.status,
+    ms: row.ms,
+    ...(row.error_class === null ? {} : { e: row.error_class as ProbeRecord['e'] }),
+  }));
+}
+
+/** Manual recovery uses the same lease and atomic write contract as the Edge job. */
+export async function collectAtomicStatus(): Promise<void> {
+  if (runner() !== DEFAULT_RUNNER)
+    throw new Error('Atomic collector requires the github-actions runner');
+  const config = configFor('write');
+  const handler = createStatusCollector({
+    secret: config.key,
+    rpc: createCollectorRpc(config.url, config.key),
+  });
+  const response = await handler(
+    new Request('https://collector.invalid/', {
+      method: 'POST',
+      headers: { authorization: `Bearer ${config.key}` },
+    }),
+  );
+  if (!response.ok) throw new Error('Atomic status collection did not complete');
+  const result = (await response.json()) as { state: string; checked: number };
+  if (result.state === 'disabled') throw new Error('Atomic status collector is disabled');
+  console.log(`Status collection: ${result.state}; ${result.checked} targets checked`);
+}
+
+export async function rebuildAtomicStatus(): Promise<void> {
+  const result = await requestJson<{ state: string }>(
+    configFor('write'),
+    'rpc/rebuild_status_projection',
+    undefined,
+    {
+      method: 'POST',
+      signal: AbortSignal.timeout(60_000),
+      body: JSON.stringify({ p_runner: runner() }),
+    },
+  );
+  if (result.state !== 'complete') throw new Error('Atomic status rebuild did not complete');
+}
+
 export async function readProbeRecordsForDayFromSupabase(day: string): Promise<ProbeRecord[]> {
   const start = `${day}T00:00:00.000Z`;
+  if (atomicCollectorEnabled()) {
+    const nextDay = new Date(new Date(start).getTime() + 86_400_000).toISOString();
+    return readBatchedProbeRecords(start, nextDay);
+  }
   const end = `${day}T23:59:59.999Z`;
   const query = new URLSearchParams({
     select: 'checked_at,target_id,status,ms,error_class',
@@ -226,6 +296,9 @@ export async function readProbeRecordsForDayFromSupabase(day: string): Promise<P
 }
 
 export async function readProbeRecordsSinceFromSupabase(start: Date): Promise<ProbeRecord[]> {
+  if (atomicCollectorEnabled()) {
+    return readBatchedProbeRecords(start.toISOString(), new Date(Date.now() + 5_000).toISOString());
+  }
   const query = new URLSearchParams({
     select: 'checked_at,target_id,status,ms,error_class',
     checked_at: `gte.${start.toISOString()}`,

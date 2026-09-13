@@ -5,6 +5,7 @@ import type { ProbeRecord, Summary, TargetConfig } from '../shared/types';
 import { loadTargets } from './lib/config';
 import { withDataBranch } from './lib/data-branch';
 import { probe } from './lib/probe';
+import { atomicCollectorEnabled } from './lib/collector-backend';
 import { shouldWriteGit, shouldWriteSupabase, storageMode } from './lib/storage-mode';
 import {
   applyIncrement,
@@ -16,6 +17,7 @@ import {
 } from './lib/summary';
 import {
   hasSupabaseWriteConfig,
+  collectAtomicStatus,
   readLatestSummaryFromSupabase,
   readProbeRecordsForDayFromSupabase,
   writeUptimeToSupabase,
@@ -139,6 +141,11 @@ async function writeSupabaseData(batch: ProbeBatch): Promise<void> {
 
 async function main(): Promise<void> {
   const mode = storageMode();
+  if (atomicCollectorEnabled()) {
+    if (mode !== 'supabase') throw new Error('Atomic collection requires STATUS_STORAGE=supabase');
+    await collectAtomicStatus();
+    return;
+  }
   const batch = await collectProbeBatch();
 
   if (shouldWriteGit(mode)) {

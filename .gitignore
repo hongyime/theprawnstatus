@@ -56,3 +56,4 @@ docs/
 # Browser-test artifacts stay local; CI retains failure evidence briefly.
 test-results/
 playwright-report/
+__pycache__/

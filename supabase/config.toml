@@ -1,0 +1,5 @@
+project_id = "theprawnstatus"
+
+[functions.status-uptime-collector]
+verify_jwt = true
+entrypoint = "./functions/status-uptime-collector/index.ts"
