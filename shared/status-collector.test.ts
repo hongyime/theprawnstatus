@@ -197,6 +197,87 @@ describe('authenticated bounded collector', () => {
 });
 
 describe('collector database requests', () => {
+  it.each([502, 503, 504])(
+    'recovers one gateway HTTP %i without changing the commit payload',
+    async (status) => {
+      vi.useFakeTimers();
+      const cancel = vi.fn();
+      const transport = vi
+        .fn<typeof fetch>()
+        .mockResolvedValueOnce(new Response(new ReadableStream({ cancel }), { status }))
+        .mockResolvedValueOnce(Response.json({ state: 'complete', slot }));
+      const parameters = {
+        p_runner: 'github-actions',
+        p_token: token,
+        p_records: targets.map(record),
+      };
+      const pending = createCollectorRpc('https://database.invalid', secret, transport)(
+        'commit_status_collection',
+        parameters,
+        new AbortController().signal,
+      );
+      const outcome = expect(pending).resolves.toEqual({ state: 'complete', slot });
+      await vi.advanceTimersByTimeAsync(250);
+      await outcome;
+      expect(transport).toHaveBeenCalledTimes(2);
+      expect(transport.mock.calls[0][1]?.body).toBe(transport.mock.calls[1][1]?.body);
+      expect(cancel).toHaveBeenCalledOnce();
+      expect(vi.getTimerCount()).toBe(0);
+    },
+  );
+
+  it('keeps both gateway attempts inside one deadline', async () => {
+    vi.useFakeTimers();
+    const transport = vi
+      .fn<typeof fetch>()
+      .mockImplementationOnce(
+        () =>
+          new Promise((resolve) =>
+            setTimeout(() => resolve(new Response(null, { status: 504 })), 14900),
+          ),
+      )
+      .mockResolvedValueOnce(Response.json({ state: 'claimed' }));
+    const pending = createCollectorRpc('https://database.invalid', secret, transport)(
+      'claim_status_collection',
+      {},
+      new AbortController().signal,
+    );
+    const rejected = expect(pending).rejects.toBeInstanceOf(DOMException);
+    await vi.advanceTimersByTimeAsync(15001);
+    await rejected;
+    expect(transport).toHaveBeenCalledTimes(1);
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it.each([401, 403, 429])('does not retry HTTP %i', async (status) => {
+    const transport = vi.fn<typeof fetch>().mockResolvedValue(new Response(secret, { status }));
+    await expect(
+      createCollectorRpc('https://database.invalid', secret, transport)(
+        'claim_status_collection',
+        {},
+        new AbortController().signal,
+      ),
+    ).rejects.toThrow('Database collector request failed');
+    expect(transport).toHaveBeenCalledOnce();
+  });
+
+  it('stops after two transient failures and hides response bodies', async () => {
+    vi.useFakeTimers();
+    const transport = vi
+      .fn<typeof fetch>()
+      .mockImplementation(async () => new Response(secret, { status: 504 }));
+    const pending = createCollectorRpc('https://database.invalid', secret, transport)(
+      'claim_status_collection',
+      {},
+      new AbortController().signal,
+    );
+    const rejected = expect(pending).rejects.toThrow('Database collector request failed');
+    await vi.advanceTimersByTimeAsync(250);
+    await rejected;
+    expect(transport).toHaveBeenCalledTimes(2);
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
   it('sends credentials only to the configured RPC and clears its timer', async () => {
     vi.useFakeTimers();
     const transport = vi.fn<typeof fetch>().mockResolvedValue(Response.json({ state: 'busy' }));
@@ -264,8 +345,10 @@ describe('collector database requests', () => {
       secret,
       async () => new Response(secret, { status: 503 }),
     );
-    await expect(
+    const failed = expect(
       failing('claim_status_collection', {}, new AbortController().signal),
     ).rejects.toThrow('Database collector request failed');
+    await vi.advanceTimersByTimeAsync(250);
+    await failed;
   });
 });

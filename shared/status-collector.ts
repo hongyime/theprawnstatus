@@ -210,24 +210,47 @@ export function createCollectorRpc(url: string, key: string, fetchImpl: typeof f
       COLLECTOR_RPC_TIMEOUT_MS,
     );
     let response: Response | undefined;
+    const body = JSON.stringify(parameters);
     try {
       return await abortable(signal, async () => {
-        response = await fetchImpl(new URL('/rest/v1/rpc/' + name, base), {
-          method: 'POST',
-          signal,
-          headers: {
-            apikey: key,
-            authorization: 'Bearer ' + key,
-            'content-type': 'application/json',
-          },
-          body: JSON.stringify(parameters),
-        });
-        if (signal.aborted) {
-          discard(response);
-          throw signal.reason;
+        for (let attempt = 0; attempt < 2; attempt += 1) {
+          response = await fetchImpl(new URL('/rest/v1/rpc/' + name, base), {
+            method: 'POST',
+            signal,
+            headers: {
+              apikey: key,
+              authorization: 'Bearer ' + key,
+              'content-type': 'application/json',
+            },
+            body,
+          });
+          if (signal.aborted) {
+            discard(response);
+            throw signal.reason;
+          }
+          if (attempt === 0 && [502, 503, 504].includes(response.status)) {
+            // Keep the exact payload and the original deadline. Commit retries are
+            // idempotent; an uncertain claim may return busy without probing again.
+            discard(response);
+            response = undefined;
+            let retryTimer: ReturnType<typeof setTimeout> | undefined;
+            try {
+              await abortable(
+                signal,
+                () =>
+                  new Promise<void>((resolve) => {
+                    retryTimer = setTimeout(resolve, 250);
+                  }),
+              );
+            } finally {
+              clearTimeout(retryTimer);
+            }
+            continue;
+          }
+          if (!response.ok) throw new Error('Database collector request failed');
+          return await readRpcBody(response, signal);
         }
-        if (!response.ok) throw new Error('Database collector request failed');
-        return await readRpcBody(response, signal);
+        throw new Error('Database collector request failed');
       });
     } finally {
       clearTimeout(timer);
