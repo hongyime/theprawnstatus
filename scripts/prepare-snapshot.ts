@@ -70,6 +70,8 @@ async function writeSnapshot(fileName: string, fallback: unknown): Promise<void>
 }
 
 async function main(): Promise<void> {
+  // CI/browser fixtures retain committed snapshots without contacting a provider.
+  if (process.env.STATUS_OFFLINE_BUILD === '1') return;
   await writeSnapshot('snapshot.json', {
     generated_at: null,
     window_days: 90,

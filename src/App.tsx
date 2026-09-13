@@ -42,11 +42,21 @@ function App(): ReactNode {
           {status.error !== null && status.source === null ? (
             <Banner tone="error">Status data failed to load.</Banner>
           ) : null}
+          {status.error !== null && status.data !== null && status.source !== 'snapshot' ? (
+            <Banner tone="warn">Status refresh failed; showing the last loaded data.</Banner>
+          ) : null}
           {health.source === 'snapshot' ? (
             <Banner tone="warn">Live health data unavailable; showing the build snapshot.</Banner>
           ) : null}
           {health.report !== null && health.stale ? (
             <Banner tone="warn">Repo health data is stale.</Banner>
+          ) : null}
+          {health.error !== null && health.source !== 'snapshot' ? (
+            <Banner tone="warn">
+              {health.report === null
+                ? 'Repo health data failed to load.'
+                : 'Health refresh failed; showing the last loaded data.'}
+            </Banner>
           ) : null}
         </div>
 

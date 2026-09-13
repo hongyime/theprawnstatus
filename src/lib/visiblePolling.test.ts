@@ -98,4 +98,51 @@ describe('dashboard polling', () => {
     expect(load).toHaveBeenCalledTimes(1);
     expect(vi.getTimerCount()).toBe(0);
   });
+
+  it('keeps the existing due time across a brief tab switch', async () => {
+    const visibility = new Visibility();
+    const load = vi.fn().mockResolvedValue(true);
+    const stop = startVisiblePolling(load, 120_000, visibility);
+    await vi.advanceTimersByTimeAsync(10_000);
+    visibility.setHidden(true);
+    await vi.advanceTimersByTimeAsync(10_000);
+    visibility.setHidden(false);
+    await vi.advanceTimersByTimeAsync(99_999);
+    expect(load).toHaveBeenCalledTimes(1);
+    await vi.advanceTimersByTimeAsync(1);
+    expect(load).toHaveBeenCalledTimes(2);
+    stop();
+  });
+
+  it('aborts its active request chain when disposed', async () => {
+    let signal!: AbortSignal;
+    const stop = startVisiblePolling(
+      (current) => {
+        signal = current;
+        return new Promise((resolve) => current.addEventListener('abort', () => resolve(false)));
+      },
+      120_000,
+      new Visibility(),
+    );
+    expect(signal.aborted).toBe(false);
+    stop();
+    await vi.advanceTimersByTimeAsync(0);
+    expect(signal.aborted).toBe(true);
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it('does not bypass failure backoff by switching tabs', async () => {
+    const visibility = new Visibility();
+    const load = vi.fn().mockResolvedValue(false);
+    const stop = startVisiblePolling(load, 1_000, visibility);
+    await vi.advanceTimersByTimeAsync(500);
+    visibility.setHidden(true);
+    await vi.advanceTimersByTimeAsync(500);
+    visibility.setHidden(false);
+    await vi.advanceTimersByTimeAsync(999);
+    expect(load).toHaveBeenCalledTimes(1);
+    await vi.advanceTimersByTimeAsync(1);
+    expect(load).toHaveBeenCalledTimes(2);
+    stop();
+  });
 });

@@ -1,0 +1,40 @@
+{
+  "task": "Dashboard refresh budgets and health history reads",
+  "base": "c7173b8aa4b8c3ccc217865f2b9c4c3e68a646ec",
+  "status": "local release checks passed; hosted PR and production verification pending",
+  "tasks": [
+    "Reproduce duplicate health reads, unused history transfer and stalled browser refresh behavior.",
+    "Repair refresh deadlines/cancellation, last-good-data recovery and visibility scheduling while preserving records and collection cadences.",
+    "Run offline unit/browser/build checks and exact-commit CI, then verify production and preserve the original checkout.",
+    "Update all portfolio requirements and publish the Markdown/HTML report."
+  ],
+  "constraints": [
+    "Preserve production records and existing collection/display intervals.",
+    "Use synthetic fixtures; do not invoke live probes, collection or migration jobs."
+  ],
+  "validation": {
+    "node": "24.21.0",
+    "unit_tests": 50,
+    "browser_cases": 27,
+    "viewports": [
+      1440,
+      390,
+      320
+    ],
+    "lint_and_build": "pass",
+    "locked_install": "pass",
+    "npm_known_vulnerabilities": 0,
+    "snapshot_hashes": "preserved"
+  },
+  "decisions": [
+    "Retain the existing two-minute status and fifteen-minute health intervals; tab visibility no longer bypasses due times or backoff.",
+    "Use eight-second request/body deadlines and a twenty-second fallback-chain budget; abort on unmount.",
+    "Keep newer loaded data when refresh/fallback fails, with a visible warning and honest freshness.",
+    "Use one thirty-report health read for both current report and trends; omit unrendered aggregate history."
+  ],
+  "remaining": [
+    "Hosted checks, production release and original checkout synchronization.",
+    "Scheduled collector starts are much less frequent than the configured five-minute request; recent runs succeed and the workflow is active. Preserve this as an unresolved scheduling/freshness issue.",
+    "Full portfolio quota, storage and review requirements remain active."
+  ]
+}

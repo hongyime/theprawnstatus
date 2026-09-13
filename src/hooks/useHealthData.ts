@@ -1,14 +1,10 @@
 import { useEffect, useState } from 'react';
 
-import type { HealthHistoryLine, HealthReport } from '@shared/types';
+import type { HealthReport } from '@shared/types';
 import { ageMinutes } from '@/lib/format';
 import { startVisiblePolling } from '@/lib/visiblePolling';
-import {
-  fetchHealthHistoryFromSupabase,
-  fetchLatestHealthFromSupabase,
-  fetchRecentHealthReportsFromSupabase,
-  hasSupabaseDataConfig,
-} from '@/lib/supabaseData';
+import { preferLoaded, requestJson, REFRESH_TIMEOUT_MS, withDeadline } from '@/lib/request';
+import { fetchHealthSnapshotFromSupabase, hasSupabaseDataConfig } from '@/lib/supabaseData';
 
 const DATA_BASE =
   import.meta.env.VITE_DATA_BASE ??
@@ -18,7 +14,6 @@ const REFRESH_MS = 900_000;
 export interface HealthDataState {
   report: HealthReport | null;
   reportHistory: HealthReport[];
-  history: HealthHistoryLine[];
   error: string | null;
   loading: boolean;
   source: 'live' | 'snapshot' | null;
@@ -34,75 +29,51 @@ function isHealthReport(value: unknown): value is HealthReport {
   );
 }
 
-async function fetchJson<T>(url: string, guard: (value: unknown) => value is T): Promise<T> {
-  const response = await fetch(url, { cache: 'no-store' });
-  if (!response.ok) {
-    throw new Error(`health data returned ${response.status}`);
-  }
-
-  const data = await response.json();
+async function fetchJson<T>(
+  url: string,
+  guard: (value: unknown) => value is T,
+  signal: AbortSignal,
+): Promise<T> {
+  const data = await requestJson<unknown>(url, signal);
   if (!guard(data)) {
     throw new Error('health data has an invalid schema');
   }
   return data;
 }
 
-async function fetchHistory(url: string): Promise<HealthHistoryLine[]> {
-  const response = await fetch(url, { cache: 'no-store' });
-  if (!response.ok) {
-    return [];
-  }
-
-  const text = await response.text();
-  return text
-    .split(/\r?\n/)
-    .filter((line) => line.trim() !== '')
-    .map((line) => JSON.parse(line) as HealthHistoryLine);
-}
-
-async function fetchSupabaseHealth(): Promise<{
+async function fetchSupabaseHealth(signal: AbortSignal): Promise<{
   report: HealthReport;
   reportHistory: HealthReport[];
-  history: HealthHistoryLine[];
 }> {
-  const [report, reportHistory, history] = await Promise.all([
-    fetchLatestHealthFromSupabase(),
-    fetchRecentHealthReportsFromSupabase(),
-    fetchHealthHistoryFromSupabase(),
-  ]);
-  if (!isHealthReport(report)) {
+  const { report, reports } = await fetchHealthSnapshotFromSupabase(signal);
+  if (!isHealthReport(report) || !reports.every(isHealthReport)) {
     throw new Error('Supabase health data has an invalid schema');
   }
 
-  return { report, reportHistory, history };
+  return { report, reportHistory: reports.filter((row) => row.generated_at !== null) };
 }
 
-async function fetchLiveHealth(): Promise<{
+async function fetchLiveHealth(signal: AbortSignal): Promise<{
   report: HealthReport;
   reportHistory: HealthReport[];
-  history: HealthHistoryLine[];
 }> {
   if (hasSupabaseDataConfig()) {
     try {
-      return await fetchSupabaseHealth();
+      return await fetchSupabaseHealth(signal);
     } catch {
+      signal.throwIfAborted();
       // Fall through to the existing Git-backed feed during migration.
     }
   }
 
-  const [report, history] = await Promise.all([
-    fetchJson(`${DATA_BASE}/health.json`, isHealthReport),
-    fetchHistory(`${DATA_BASE}/health-history.jsonl`),
-  ]);
-
-  return { report, reportHistory: [report], history };
+  const report = await fetchJson(`${DATA_BASE}/health.json`, isHealthReport, signal);
+  return { report, reportHistory: [report] };
 }
 
 export function useHealthData(): HealthDataState {
   const [state, setState] = useState<HealthDataState>({
     report: null,
     reportHistory: [],
-    history: [],
     error: null,
     loading: true,
     source: null,
@@ -112,49 +83,55 @@ export function useHealthData(): HealthDataState {
   useEffect(() => {
     let alive = true;
 
-    async function load(): Promise<boolean> {
+    async function load(signal: AbortSignal): Promise<boolean> {
+      setState((previous) => {
+        if (previous.report === null) return previous;
+        const stale = (ageMinutes(previous.report.generated_at) ?? Infinity) > 48 * 60;
+        return stale === previous.stale ? previous : { ...previous, stale };
+      });
       try {
-        const { report, reportHistory, history } = await fetchLiveHealth();
-
-        if (alive) {
-          setState({
-            report,
-            reportHistory,
-            history,
-            error: null,
-            loading: false,
-            source: 'live',
-            stale: (ageMinutes(report.generated_at) ?? Infinity) > 48 * 60,
-          });
-        }
-        return true;
-      } catch (liveError) {
-        try {
-          const report = await fetchJson('/health-snapshot.json', isHealthReport);
-          if (alive) {
-            setState({
+        const result = await withDeadline(signal, REFRESH_TIMEOUT_MS, async (refreshSignal) => {
+          try {
+            return {
+              ...(await fetchLiveHealth(refreshSignal)),
+              source: 'live' as const,
+              error: null,
+            };
+          } catch (liveError) {
+            refreshSignal.throwIfAborted();
+            const report = await fetchJson('/health-snapshot.json', isHealthReport, refreshSignal);
+            return {
               report,
               reportHistory: [report],
-              history: [],
+              source: 'snapshot' as const,
               error: liveError instanceof Error ? liveError.message : 'live health unavailable',
-              loading: false,
-              source: 'snapshot',
-              stale: (ageMinutes(report.generated_at) ?? Infinity) > 48 * 60,
-            });
+            };
           }
-        } catch (snapshotError) {
-          if (alive) {
-            setState({
-              report: null,
-              reportHistory: [],
-              history: [],
-              error:
-                snapshotError instanceof Error ? snapshotError.message : 'health data unavailable',
+        });
+        if (alive && !signal.aborted) {
+          setState((previous) => {
+            const retained =
+              result.source === 'snapshot' && preferLoaded(previous.report, result.report);
+            const report = retained ? previous.report : result.report;
+            return {
+              report,
+              reportHistory: retained ? previous.reportHistory : result.reportHistory,
+              source: retained ? previous.source : result.source,
+              error: result.error,
               loading: false,
-              source: null,
-              stale: true,
-            });
-          }
+              stale: (ageMinutes(report?.generated_at ?? null) ?? Infinity) > 48 * 60,
+            };
+          });
+        }
+        return result.source === 'live';
+      } catch (error) {
+        if (alive && !signal.aborted) {
+          setState((previous) => ({
+            ...previous,
+            error: error instanceof Error ? error.message : 'health data unavailable',
+            loading: false,
+            stale: (ageMinutes(previous.report?.generated_at ?? null) ?? Infinity) > 48 * 60,
+          }));
         }
         return false;
       }
