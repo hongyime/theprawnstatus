@@ -25,6 +25,44 @@ function testOptions(fetchImpl: typeof fetch) {
 }
 
 describe('probe', () => {
+  it('cancels the body once headers provide the status', async () => {
+    const cancel = vi.fn();
+    const response = new Response(new ReadableStream({ cancel }), { status: 200 });
+    const fetchImpl = vi.fn<typeof fetch>().mockResolvedValue(response);
+
+    await expect(probe(target, testOptions(fetchImpl))).resolves.toMatchObject({ s: 200 });
+    expect(cancel).toHaveBeenCalledTimes(1);
+  });
+
+  it('cancels redirect bodies before following the next URL', async () => {
+    const events: string[] = [];
+    const redirectCancel = vi.fn(() => { events.push('redirect-cancel'); });
+    const finalCancel = vi.fn(() => { events.push('final-cancel'); });
+    const fetchImpl = vi.fn<typeof fetch>()
+      .mockResolvedValueOnce(new Response(new ReadableStream({ cancel: redirectCancel }), {
+        status: 302, headers: { location: '/next' },
+      }))
+      .mockImplementationOnce(async () => {
+        events.push('follow');
+        return new Response(new ReadableStream({ cancel: finalCancel }), { status: 200 });
+      });
+
+    await expect(probe(target, testOptions(fetchImpl))).resolves.toMatchObject({ s: 200 });
+    expect(events).toEqual(['redirect-cancel', 'follow', 'final-cancel']);
+    expect(finalCancel).toHaveBeenCalledTimes(1);
+  });
+
+  it.each(['reject', 'stall'])('keeps the HTTP result when body cancellation can %s', async (behavior) => {
+    const cancel = vi.fn(() => behavior === 'reject'
+      ? Promise.reject(new Error('synthetic cleanup failure'))
+      : new Promise<void>(() => undefined));
+    const response = new Response(new ReadableStream({ cancel }), { status: 200 });
+    const fetchImpl = vi.fn<typeof fetch>().mockResolvedValue(response);
+
+    await expect(probe(target, testOptions(fetchImpl))).resolves.toMatchObject({ s: 200 });
+    expect(cancel).toHaveBeenCalledTimes(1);
+  });
+
   it('records a first-try 200', async () => {
     const fetchImpl = vi.fn<typeof fetch>().mockResolvedValue(new Response('', { status: 200 }));
 

@@ -36,10 +36,39 @@ describe('dayState', () => {
 });
 
 describe('summary', () => {
+  it('keeps earlier days when the collector supplies the complete current day', () => {
+    const yesterday = [record('2026-08-09', 200), record('2026-08-09', 500)];
+    const previous = rebuild(yesterday, targets, new Date('2026-08-09T23:00:00Z'));
+    const today = [record('2026-08-10', 200, 300)];
+    const result = applyIncrement(previous, today, new Date('2026-08-10T01:00:00Z'), targets, today);
+
+    expect(result.targets[0].days).toEqual([
+      { d: '2026-08-09', n: 2, ok: 1, p50: 100 },
+      { d: '2026-08-10', n: 1, ok: 1, p50: 300 },
+    ]);
+    expect(result.targets[0].uptime_90d).toBe(2 / 3);
+    expect(result.targets[0].p50_ms).toBe(previous.targets[0].p50_ms);
+    const retry = applyIncrement(result, today, new Date('2026-08-10T01:00:00Z'), targets, today);
+    expect(retry).toEqual(result);
+  });
+
   it('keeps day 90 and evicts day 91', () => {
     const now = new Date('2026-08-10T00:00:00.000Z');
     expect(isExpiredShard('history/2026-05-13.jsonl', now)).toBe(false);
     expect(isExpiredShard('history/2026-05-12.jsonl', now)).toBe(true);
+  });
+
+  it('advances the display window without mutating the previous summary', () => {
+    const previous = rebuild([
+      record('2026-05-12', 500), record('2026-05-13', 200),
+    ], targets, new Date('2026-08-09T12:00:00Z'));
+    const before = structuredClone(previous);
+    const today = [record('2026-08-10', 200)];
+    const result = applyIncrement(previous, today, new Date('2026-08-10T12:00:00Z'), targets, today);
+
+    expect(result.targets[0].days.map((bucket) => bucket.d)).toEqual(['2026-05-13', '2026-08-10']);
+    expect(result.targets[0].uptime_90d).toBe(1);
+    expect(previous).toEqual(before);
   });
 
   it('keeps incremental and rebuild output equivalent except p95', () => {

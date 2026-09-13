@@ -1,19 +1,18 @@
-import { readdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { readdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
 import type { ProbeRecord } from '../shared/types';
 import { loadTargets } from './lib/config';
 import { withDataBranch } from './lib/data-branch';
 import { shouldWriteGit, shouldWriteSupabase, storageMode } from './lib/storage-mode';
-import { isExpiredShard, parseJsonl, rebuild } from './lib/summary';
+import { parseJsonl, rebuild } from './lib/summary';
 import {
   hasSupabaseWriteConfig,
-  pruneSupabaseSamplesBefore,
   readProbeRecordsSinceFromSupabase,
   writeStatusRunToSupabase,
 } from './lib/supabase-store';
 
-const SUPABASE_RETENTION_DAYS = 91;
+const SUMMARY_READ_WINDOW_DAYS = 91;
 
 async function readHistoryRecords(
   historyDir: string,
@@ -46,7 +45,7 @@ async function main(): Promise<void> {
   if (shouldWriteGit(mode)) {
     await withDataBranch(
       {
-        commitMessage: 'chore(data): daily rebuild + prune',
+        commitMessage: 'chore(data): rebuild rolling summary and retain history',
         full: true,
       },
       async ({ dir }) => {
@@ -60,11 +59,7 @@ async function main(): Promise<void> {
           'utf8',
         );
 
-        await Promise.all(
-          history
-            .filter((item) => isExpiredShard(item.file, now))
-            .map((item) => rm(path.join(dir, item.file), { force: true })),
-        );
+        // The display window limits the summary, not the retained evidence.
       },
     );
   }
@@ -74,12 +69,11 @@ async function main(): Promise<void> {
       throw new Error('Supabase write config is missing');
     }
 
-    const cutoff = new Date(now.getTime() - SUPABASE_RETENTION_DAYS * 24 * 60 * 60 * 1000);
+    const cutoff = new Date(now.getTime() - SUMMARY_READ_WINDOW_DAYS * 24 * 60 * 60 * 1000);
     const records = await readProbeRecordsSinceFromSupabase(cutoff);
     const summary = rebuild(records, targets, now);
 
     await writeStatusRunToSupabase(summary, now);
-    await pruneSupabaseSamplesBefore(cutoff);
   }
 }
 

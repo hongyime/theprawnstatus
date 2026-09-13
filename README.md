@@ -6,7 +6,9 @@ One board showing whether the Prawn deployments are running and whether the `hon
 - Technical design: [docs/technicaldesign.md](docs/technicaldesign.md)
 - Implementation tasks: [docs/tasks](docs/tasks)
 
-Uptime is sampled every ~5 minutes and is indicative, not an SLA.
+Uptime collection is configured for five-minute intervals through GitHub Actions.
+Scheduled jobs can be delayed or dropped; use each displayed check timestamp to
+judge freshness. A reliable replacement scheduler remains pending capacity validation.
 
 The dashboard refreshes uptime data every 2 minutes and repository health/history every
 15 minutes while visible. Hidden tabs pause polling and refresh when revisited. Refreshes
@@ -46,6 +48,15 @@ Required Vercel env vars for browser reads:
 
 - `VITE_SUPABASE_URL`
 - `VITE_SUPABASE_PUBLISHABLE_KEY` or `VITE_SUPABASE_ANON_KEY`
+
+The 90-day window limits the dashboard view, not retained history. Daily rebuilds
+preserve every existing Supabase sample and Git history shard. Incremental updates
+replace only the days covered by the supplied samples and retain earlier daily
+buckets. When only today's samples are available, full-window latency percentiles
+remain at their previous values until the daily raw-sample rebuild.
+
+Uptime probes use GET response headers and discard response bodies, including
+redirect bodies. Cleanup failures cannot turn a completed HTTP probe into an outage.
 
 Backfill the existing 90-day data branch into Supabase after the SQL schema is live:
 

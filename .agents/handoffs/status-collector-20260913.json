@@ -1,0 +1,66 @@
+{
+  "at": "2026-09-13T06:36:08.374282+00:00",
+  "tasks": [
+    {
+      "id": "trace_schedule_and_database_writes",
+      "done": true
+    },
+    {
+      "id": "prove_free_tier_capacity_and_scheduler_contract",
+      "done": false
+    },
+    {
+      "id": "implement_and_validate_collector_repair",
+      "done": false
+    },
+    {
+      "id": "release_and_verify_production_freshness",
+      "done": false
+    },
+    {
+      "id": "refresh_portfolio_and_publish_report",
+      "done": false
+    }
+  ],
+  "finding": "Successful GitHub jobs start much less often than the configured five-minute schedule; confirm Supabase timestamps and free-tier effect before replacing scheduling.",
+  "constraints": [
+    "Keep existing records and source/environment bytes.",
+    "No paid infrastructure, shared Docker, SG SHIOK changes, external notifications or real-provider test runs.",
+    "Pocketclawd stays homepage-only; full portfolio scope remains active."
+  ],
+  "production_changed": false,
+  "root_cause": {
+    "at": "2026-09-13T06:16:34.289554+00:00",
+    "configured_uptime_minutes": 5,
+    "scheduled_runs_reviewed": 35,
+    "observed_gap_minutes": {
+      "min": 47.31666666666667,
+      "median": 161.3,
+      "max": 314.53333333333336
+    },
+    "latest_job_run": 34740857924,
+    "latest_job_duration_seconds": 17,
+    "latest_database_generated_at": "2026-09-13T05:40:11.454Z",
+    "root_cause": "Workflow event creation is delayed, while jobs complete and write Supabase successfully. GitHub documents delayed/dropped scheduled events.",
+    "related_source_findings": [
+      "Uptime increment passes only today's raw samples to rebuild, replacing older daily buckets in the displayed 90-day summary.",
+      "Daily rebuild automatically deletes samples and Git shards older than 91 days, contrary to the accepted preserve-all-records requirement. No production data is currently that old.",
+      "Probe GET and redirect responses do not cancel their bodies after reading status headers."
+    ],
+    "capacity_gate": "Do not enable reliable five-minute writes until lossless history representation, egress and database growth are measured; avoid repeated whole-day downloads/full-history snapshots.",
+    "candidate": "Supabase Cron plus an authenticated Edge collector using the same 22 targets, bounded probes and atomic lossless batch persistence; retain daily GitHub health auditing where its repository token is available.",
+    "production_mutations": false
+  },
+  "next": "Release the verified history, retention and response-body corrections, rebuild from retained raw samples and verify an uptime increment. Reliable scheduling and lossless storage capacity remain required follow-up work.",
+  "validated_repairs": {
+    "prior_day_history_preserved": true,
+    "automatic_retention_deletion_removed": true,
+    "unused_probe_bodies_cancelled": true,
+    "baseline_failures": 5,
+    "native_stream_baseline": "Failed to close within 1.5 seconds; fixed source passes close and byte-bound assertions",
+    "full_local_unit_cases_passed_before_boundary_case": 58,
+    "additional_boundary_case": "passed",
+    "lint": "passed",
+    "offline_build": "passed"
+  }
+}
