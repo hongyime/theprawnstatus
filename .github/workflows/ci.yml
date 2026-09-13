@@ -62,8 +62,6 @@ jobs:
       PGPORT: '5432'
       PGUSER: postgres
       PGPASSWORD: synthetic-status-fixture
-      STATUS_TEST_ARTIFACT_DIR: ${{ runner.temp }}/status-contracts
-      STATUS_TEST_POSTGREST: ${{ runner.temp }}/status-tools/postgrest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
@@ -82,6 +80,9 @@ jobs:
           tar -xJf "$RUNNER_TEMP/status-tools/postgrest.tar.xz" -C "$RUNNER_TEMP/status-tools"
       - run: deno check --no-config supabase/functions/status-uptime-collector/index.ts
       - run: python3 tests/collector/run.py
+        env:
+          STATUS_TEST_ARTIFACT_DIR: ${{ runner.temp }}/status-contracts
+          STATUS_TEST_POSTGREST: ${{ runner.temp }}/status-tools/postgrest
       - uses: actions/upload-artifact@v7
         if: always()
         with:
