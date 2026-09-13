@@ -18,8 +18,6 @@ def checked(name):
 def request(url, method='GET', value=None, token=None, prefer=None):
     headers={}
     if token: headers['Authorization']='Bearer '+token
-    if url.startswith('http://127.0.0.1:54386/') and token==service:
-        headers['x-status-collector-authorization']='Bearer '+collector_secret
     if prefer: headers['Prefer']=prefer
     data=None if value is None else json.dumps(value).encode()
     if data is not None: headers['Content-Type']='application/json'
@@ -27,9 +25,9 @@ def request(url, method='GET', value=None, token=None, prefer=None):
     try:
         with urlopen(req, timeout=35) as response: return response.status, response.read()
     except HTTPError as error: return error.code, error.read()
-def jwt(role, secret):
+def jwt(role, secret, extra=None):
     encode=lambda x:base64.urlsafe_b64encode(json.dumps(x,separators=(',',':')).encode()).decode().rstrip('=')
-    value=encode({'alg':'HS256','typ':'JWT'})+'.'+encode({'role':role,'exp':int(time.time())+7200})
+    value=encode({'alg':'HS256','typ':'JWT'})+'.'+encode({'role':role,'iss':'supabase','ref':'abcdefghijklmnopqrst','exp':int(time.time())+7200,**(extra or {})})
     return value+'.'+base64.urlsafe_b64encode(hmac.new(secret.encode(),value.encode(),hashlib.sha256).digest()).decode().rstrip('=')
 def launch(command, env, name):
     handle=(out/f'status-http-{args.label}-{name}.log').open('wb'); handles.append(handle)
@@ -60,7 +58,9 @@ try:
     password=secrets.token_urlsafe(32); jwt_secret=secrets.token_urlsafe(48)
     authenticator='status_http_'+args.label
     lab.sql('create role '+authenticator+' login password '+lab.literal(password)+'; grant anon, authenticated, service_role to '+authenticator)
-    service=jwt('service_role',jwt_secret); anon=jwt('anon',jwt_secret);collector_secret=secrets.token_urlsafe(48)
+    service=jwt('service_role',jwt_secret); anon=jwt('anon',jwt_secret)
+    runtime_service=jwt('service_role',jwt_secret,{'runtime':'separate-database-credential'})
+    assert runtime_service!=service
     env={k:v for k,v in os.environ.items() if not k.startswith(('SUPABASE_','PGRST_'))}
     env['PATH']=str(lab.config['binary'])+os.pathsep+env.get('PATH','')
     env.update(PGRST_DB_URI=f"postgresql://{authenticator}:{password}@127.0.0.1:{lab.config['port']}/{database}",PGRST_DB_SCHEMAS='public',PGRST_DB_ANON_ROLE='anon',PGRST_JWT_SECRET=jwt_secret,PGRST_SERVER_HOST='127.0.0.1',PGRST_SERVER_PORT='54385',PGRST_DB_POOL='3')
@@ -119,14 +119,14 @@ try:
     targets=[{'id':f'target-{i}','name':f'Fixture {i} 雪','url':f'http://127.0.0.1:54387/'+('failure' if i==21 else 'redirect' if i==20 else 'ok'),'expect':200} for i in range(22)]
     lab.sql("insert into status_collector_leases(runner,enabled,targets) values ('github-actions',true,"+lab.json_literal(targets)+')')
     harness=out/f'status-http-{args.label}-entry.ts'
-    harness.write_text('import {createCollectorRpc,createStatusCollector} from '+json.dumps((root/'shared/status-collector.ts').as_uri())+';\nconst key=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;\nDeno.serve({hostname:"127.0.0.1",port:54386},createStatusCollector({secret:Deno.env.get("STATUS_COLLECTOR_SECRET")!,authorizationHeader:"x-status-collector-authorization",rpc:createCollectorRpc(Deno.env.get("SUPABASE_URL")!,key)}));\n')
+    harness.write_text('import {createCollectorRpc,createStatusCollector} from '+json.dumps((root/'shared/status-collector.ts').as_uri())+';\nimport {hasVerifiedPlatformServiceRole} from '+json.dumps((root/'shared/platform-service-role.ts').as_uri())+';\nimport {fixtureJwtGateway} from '+json.dumps((root/'tests/collector/platform-gateway-fixture.ts').as_uri())+';\nconst key=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;\nconst handler=createStatusCollector({secret:key,authorizeVerifiedRequest:request=>hasVerifiedPlatformServiceRole(request.headers.get("authorization"),"abcdefghijklmnopqrst"),rpc:createCollectorRpc(Deno.env.get("SUPABASE_URL")!,key)});\nDeno.serve({hostname:"127.0.0.1",port:54386},fixtureJwtGateway(handler,Deno.env.get("STATUS_TEST_JWT_SECRET")!));\n')
     deno_env={k:v for k,v in os.environ.items() if not k.startswith(('SUPABASE_','PGRST_'))}
-    deno_env.update(SUPABASE_URL='http://127.0.0.1:54387',SUPABASE_SERVICE_ROLE_KEY=service,STATUS_COLLECTOR_SECRET=collector_secret)
-    deno=launch([os.environ.get('STATUS_TEST_DENO','deno'),'run','--no-config','--allow-env=SUPABASE_URL,SUPABASE_SERVICE_ROLE_KEY,STATUS_COLLECTOR_SECRET','--allow-net=127.0.0.1',str(harness)],deno_env,'deno')
+    deno_env.update(SUPABASE_URL='http://127.0.0.1:54387',SUPABASE_SERVICE_ROLE_KEY=runtime_service,STATUS_TEST_JWT_SECRET=jwt_secret)
+    deno=launch([os.environ.get('STATUS_TEST_DENO','deno'),'run','--no-config','--allow-env=SUPABASE_URL,SUPABASE_SERVICE_ROLE_KEY,STATUS_TEST_JWT_SECRET','--allow-net=127.0.0.1',str(harness)],deno_env,'deno')
     endpoint='http://127.0.0.1:54386/'
     wait_http(endpoint,deno)
-    assert request(endpoint)[0]==405
-    for token in (None,anon,'invalid'):
+    assert request(endpoint,token=service)[0]==405
+    for token in (None,anon,jwt('authenticated',jwt_secret),jwt('service_role','incorrect-fixture-signing-key'),'invalid'):
         assert request(endpoint,'POST',{},token)[0]==401
     assert activity['rpc']==0 and activity['probe']==0
     checked('actual Deno HTTP authentication denies callers before all database and probe work')
@@ -171,7 +171,7 @@ try:
     assert fingerprint('status_runs_legacy')==archive and fingerprint('status_samples')==old_samples
     checked('real Node recovery and rebuild use the atomic contract and read both preserved storage formats')
     assert activity['credential_leaks']==0
-    checked('private collector and database credentials never reach synthetic provider requests')
+    checked('caller and database credentials never reach synthetic provider requests')
     report.update(stage='passed',check_count=len(report['checks']),postgrest_version=pgrst['version'],postgres_version=lab.value("select to_json(version())"),deno_version=subprocess.check_output([os.environ.get('STATUS_TEST_DENO','deno'),'--version'],text=True).splitlines()[0],activity=activity,legacy_samples_preserved=old_samples,legacy_archive_preserved=archive)
 except Exception as error:
     report.update(stage='failed',error_type=type(error).__name__,error=str(error)[:1000]); raise

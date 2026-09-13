@@ -49,19 +49,19 @@ describe('authenticated bounded collector', () => {
     expect(rpc).not.toHaveBeenCalled();
   });
 
-  it('accepts a private collector header independently of the platform JWT', async () => {
+  it('accepts the configured platform authorization independently of the database credential', async () => {
     const rpc = vi.fn().mockResolvedValue({ state: 'disabled' });
     const handler = createStatusCollector({
       secret,
       rpc,
-      authorizationHeader: 'x-status-collector-authorization',
+      authorizeVerifiedRequest: (request) =>
+        request.headers.get('authorization') === 'Bearer synthetic-platform-jwt',
     });
     const response = await handler(
       new Request('https://collector.invalid', {
         method: 'POST',
         headers: {
           authorization: 'Bearer synthetic-platform-jwt',
-          'x-status-collector-authorization': 'Bearer ' + secret,
         },
       }),
     );
@@ -70,12 +70,12 @@ describe('authenticated bounded collector', () => {
     expect(rpc).toHaveBeenCalledTimes(1);
   });
 
-  it('requires the configured private header even when another bearer header matches', async () => {
+  it('honors a platform authorization rejection even when the fallback bearer matches', async () => {
     const rpc = vi.fn();
     const handler = createStatusCollector({
       secret,
       rpc,
-      authorizationHeader: 'x-status-collector-authorization',
+      authorizeVerifiedRequest: () => false,
     });
     const response = await handler(request('Bearer ' + secret));
     expect(response.status).toBe(401);
