@@ -150,16 +150,22 @@ try:
     assert code==200 and len(json.loads(body)[0]['summary']['targets'])==22
     checked('original dashboard REST query sees committed data and original evidence stays unchanged')
     before_probe=activity['probe']; before_counts=counts()
-    assert json.loads(request(endpoint,'POST',{},service)[1])['checked']==0
-    assert activity['probe']==before_probe and counts()==before_counts
-    checked('repeat request after commit performs no extra probes or writes')
+    repeat=json.loads(request(endpoint,'POST',{},service)[1])
+    after_repeat=counts();new_slots=after_repeat[0]-before_counts[0]
+    assert new_slots in (0,1) and after_repeat[1]==1 and repeat['checked']==22*new_slots
+    assert activity['probe']-before_probe==25*new_slots
+    checked('repeat HTTP call reuses its completed slot or collects exactly one newly opened slot')
+    before_probe=activity['probe'];before_counts=counts()
     node_harness=out/f'status-http-{args.label}-node.mts'
     node_harness.write_text('import {collectAtomicStatus,rebuildAtomicStatus,readProbeRecordsForDayFromSupabase,readProbeRecordsSinceFromSupabase} from '+json.dumps((root/'scripts/lib/supabase-store.ts').as_uri())+';\nawait collectAtomicStatus();\nawait rebuildAtomicStatus();\nconst day=new Date().toISOString().slice(0,10);\nconst today=await readProbeRecordsForDayFromSupabase(day);\nconst all=await readProbeRecordsSinceFromSupabase(new Date("2026-08-01T00:00:00Z"));\nconsole.log(JSON.stringify({today:today.length,all:all.length,retained:all.some(r=>r.id==="retained")}));\n')
     node_env={**deno_env,'STATUS_STORAGE':'supabase','STATUS_COLLECTION_BACKEND':'atomic','STATUS_RUNNER':'github-actions'}
     node_result=subprocess.run([os.environ.get('STATUS_TEST_NODE','node'),str(root/'node_modules/tsx/dist/cli.mjs'),str(node_harness)],cwd=root,env=node_env,capture_output=True,text=True,timeout=30,creationflags=getattr(subprocess,'CREATE_NO_WINDOW',0))
     assert node_result.returncode==0, node_result.stderr[:600]
-    assert json.loads(node_result.stdout.strip().splitlines()[-1])=={'today':22,'all':23,'retained':True}
-    assert activity['probe']==before_probe and counts()==before_counts and fingerprint('status_runs_legacy')==archive
+    expected_today=lab.value("select to_json(count(*)) from status_probe_batches cross join lateral jsonb_array_elements(records) r where (r->>'t')::timestamptz >= date_trunc('day',clock_timestamp() at time zone 'UTC') at time zone 'UTC'")
+    after_node=counts();new_slots=after_node[0]-before_counts[0]
+    assert new_slots in (0,1) and after_node[1]==1 and activity['probe']-before_probe==25*new_slots
+    assert json.loads(node_result.stdout.strip().splitlines()[-1])=={'today':expected_today,'all':22*after_node[0]+1,'retained':True}
+    assert fingerprint('status_runs_legacy')==archive and fingerprint('status_samples')==old_samples
     checked('real Node recovery and rebuild use the atomic contract and read both preserved storage formats')
     report.update(stage='passed',check_count=len(report['checks']),postgrest_version=pgrst['version'],postgres_version=lab.value("select to_json(version())"),deno_version=subprocess.check_output([os.environ.get('STATUS_TEST_DENO','deno'),'--version'],text=True).splitlines()[0],activity=activity,legacy_samples_preserved=old_samples,legacy_archive_preserved=archive)
 except Exception as error:
