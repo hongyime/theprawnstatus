@@ -4,6 +4,7 @@ import type { Summary } from '@shared/types';
 import { ageMinutes } from '@/lib/format';
 import { fetchLatestSummaryFromSupabase, hasSupabaseDataConfig } from '@/lib/supabaseData';
 import { startVisiblePolling } from '@/lib/visiblePolling';
+import { preferLoaded, requestJson, REFRESH_TIMEOUT_MS, withDeadline } from '@/lib/request';
 
 const SUMMARY_URL =
   import.meta.env.VITE_SUMMARY_URL ??
@@ -31,13 +32,8 @@ function isSummary(value: unknown): value is Summary {
   );
 }
 
-async function fetchSummary(url: string): Promise<Summary> {
-  const response = await fetch(url, { cache: 'no-store' });
-  if (!response.ok) {
-    throw new Error(`status data returned ${response.status}`);
-  }
-
-  const data = await response.json();
+async function fetchSummary(url: string, signal: AbortSignal): Promise<Summary> {
+  const data = await requestJson<unknown>(url, signal);
   if (!isSummary(data)) {
     throw new Error('status data has an invalid schema');
   }
@@ -45,8 +41,8 @@ async function fetchSummary(url: string): Promise<Summary> {
   return data;
 }
 
-async function fetchSupabaseSummary(): Promise<Summary> {
-  const data = await fetchLatestSummaryFromSupabase();
+async function fetchSupabaseSummary(signal: AbortSignal): Promise<Summary> {
+  const data = await fetchLatestSummaryFromSupabase(signal);
   if (!isSummary(data)) {
     throw new Error('Supabase status data has an invalid schema');
   }
@@ -54,16 +50,17 @@ async function fetchSupabaseSummary(): Promise<Summary> {
   return data;
 }
 
-async function fetchLiveSummary(): Promise<Summary> {
+async function fetchLiveSummary(signal: AbortSignal): Promise<Summary> {
   if (hasSupabaseDataConfig()) {
     try {
-      return await fetchSupabaseSummary();
+      return await fetchSupabaseSummary(signal);
     } catch {
+      signal.throwIfAborted();
       // Fall through to the existing Git-backed feed during migration.
     }
   }
 
-  return fetchSummary(SUMMARY_URL);
+  return fetchSummary(SUMMARY_URL, signal);
 }
 
 export function useStatusData(): StatusDataState {
@@ -78,42 +75,52 @@ export function useStatusData(): StatusDataState {
   useEffect(() => {
     let alive = true;
 
-    async function load(): Promise<boolean> {
+    async function load(signal: AbortSignal): Promise<boolean> {
+      setState((previous) => {
+        if (previous.data === null) return previous;
+        const stale = (ageMinutes(previous.data.generated_at) ?? Infinity) > STALE_MINUTES;
+        return stale === previous.stale ? previous : { ...previous, stale };
+      });
       try {
-        const live = await fetchLiveSummary();
-        if (alive) {
-          setState({
-            data: live,
-            error: null,
-            loading: false,
-            source: 'live',
-            stale: (ageMinutes(live.generated_at) ?? Infinity) > STALE_MINUTES,
+        const result = await withDeadline(signal, REFRESH_TIMEOUT_MS, async (refreshSignal) => {
+          try {
+            return {
+              data: await fetchLiveSummary(refreshSignal),
+              source: 'live' as const,
+              error: null,
+            };
+          } catch (liveError) {
+            refreshSignal.throwIfAborted();
+            return {
+              data: await fetchSummary('/snapshot.json', refreshSignal),
+              source: 'snapshot' as const,
+              error: liveError instanceof Error ? liveError.message : 'live data unavailable',
+            };
+          }
+        });
+        if (alive && !signal.aborted) {
+          setState((previous) => {
+            const retained =
+              result.source === 'snapshot' && preferLoaded(previous.data, result.data);
+            const data = retained ? previous.data : result.data;
+            return {
+              data,
+              source: retained ? previous.source : result.source,
+              error: result.error,
+              loading: false,
+              stale: (ageMinutes(data?.generated_at ?? null) ?? Infinity) > STALE_MINUTES,
+            };
           });
         }
-        return true;
-      } catch (liveError) {
-        try {
-          const snapshot = await fetchSummary('/snapshot.json');
-          if (alive) {
-            setState({
-              data: snapshot,
-              error: liveError instanceof Error ? liveError.message : 'live data unavailable',
-              loading: false,
-              source: 'snapshot',
-              stale: (ageMinutes(snapshot.generated_at) ?? Infinity) > STALE_MINUTES,
-            });
-          }
-        } catch (snapshotError) {
-          if (alive) {
-            setState({
-              data: null,
-              error:
-                snapshotError instanceof Error ? snapshotError.message : 'status data unavailable',
-              loading: false,
-              source: null,
-              stale: true,
-            });
-          }
+        return result.source === 'live';
+      } catch (error) {
+        if (alive && !signal.aborted) {
+          setState((previous) => ({
+            ...previous,
+            error: error instanceof Error ? error.message : 'status data unavailable',
+            loading: false,
+            stale: (ageMinutes(previous.data?.generated_at ?? null) ?? Infinity) > STALE_MINUTES,
+          }));
         }
         return false;
       }

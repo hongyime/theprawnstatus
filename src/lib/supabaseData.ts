@@ -1,4 +1,5 @@
 import type { HealthHistoryLine, HealthReport, Summary } from '@shared/types';
+import { requestJson } from './request';
 
 interface SupabaseConfig {
   url: string;
@@ -38,40 +39,44 @@ export function hasSupabaseDataConfig(): boolean {
   return readConfig() !== null;
 }
 
-async function requestRows<T>(table: string, query: URLSearchParams): Promise<T[]> {
+async function requestRows<T>(
+  table: string,
+  query: URLSearchParams,
+  signal?: AbortSignal,
+): Promise<T[]> {
   const config = readConfig();
   if (config === null) {
     throw new Error('Supabase browser config is missing');
   }
 
-  const response = await fetch(`${config.url}/rest/v1/${table}?${query.toString()}`, {
-    headers: {
-      apikey: config.key,
-      Authorization: `Bearer ${config.key}`,
-      Accept: 'application/json',
-    },
-    cache: 'no-store',
+  return requestJson<T[]>(`${config.url}/rest/v1/${table}?${query.toString()}`, signal, {
+    apikey: config.key,
+    Authorization: `Bearer ${config.key}`,
+    Accept: 'application/json',
   });
-
-  if (!response.ok) {
-    throw new Error(`Supabase ${table} returned ${response.status}`);
-  }
-
-  return (await response.json()) as T[];
 }
 
-export async function fetchLatestSummaryFromSupabase(): Promise<Summary> {
+export async function fetchLatestSummaryFromSupabase(signal?: AbortSignal): Promise<Summary> {
   const query = new URLSearchParams({
     select: 'summary',
     order: 'generated_at.desc',
     limit: '1',
   });
-  const rows = await requestRows<StatusRunRow>('status_runs', query);
+  const rows = await requestRows<StatusRunRow>('status_runs', query, signal);
   const summary = rows[0]?.summary;
   if (summary === undefined) {
     throw new Error('Supabase status data is empty');
   }
   return summary as Summary;
+}
+
+export async function fetchHealthSnapshotFromSupabase(signal?: AbortSignal): Promise<{
+  report: unknown;
+  reports: unknown[];
+}> {
+  const query = new URLSearchParams({ select: 'report', order: 'generated_at.desc', limit: '30' });
+  const rows = await requestRows<HealthRunRow>('health_runs', query, signal);
+  return { report: rows[0]?.report, reports: rows.map((row) => row.report).reverse() };
 }
 
 export async function fetchLatestHealthFromSupabase(): Promise<HealthReport> {
