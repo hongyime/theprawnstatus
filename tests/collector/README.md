@@ -17,3 +17,10 @@ CI supplies PostgreSQL 17.6, Deno 2.9.6 and a checksum-verified PostgREST 14.5
 binary. JSON reports and synthetic server logs are saved to
 `STATUS_TEST_ARTIFACT_DIR`. Capacity benchmarks are separate from this fast
 contract suite; passing fixtures do not establish production usage or uptime.
+
+The HTTP fixture verifies synthetic HMAC signatures before delivering requests
+to the handler, modelling Supabase's mandatory JWT gateway. Caller and database
+service tokens deliberately differ. Forged signatures and ordinary users are
+rejected before database work. The gateway fixture is never deployed;
+`verify_jwt=true` is required in the real deployment and checked again through
+production function metadata before scheduling is enabled.

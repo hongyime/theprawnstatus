@@ -15,10 +15,12 @@ eight workers, and commits the complete batch and projection in one transaction.
 The 145-second lease fences expired writers. Identical commit retries do not
 rewrite rows. The 140-second overall deadline includes bounded database requests,
 probe retries and redirect handling. Public or ordinary user JWTs cannot invoke
-the collector: the hosted endpoint keeps platform JWT verification and also
-requires `X-Status-Collector-Authorization: Bearer <private collector secret>`.
-The private secret grants collection access only; the database credential stays
-inside the Edge runtime. Callers cannot supply target URLs.
+the collector: Supabase's gateway verifies the JWT signature, and the handler
+requires the service role, this project reference, the platform issuer and an
+unexpired token. The gateway must remain enabled with `verify_jwt=true`; the
+claim check is not a signature verifier. This supports existing service tokens
+when the platform-managed database credential differs. Callers cannot supply
+target URLs.
 
 At 400,000,000 application database bytes, the claim refuses new collection
 before any probes or data writes. Existing history stays available and the UI
@@ -46,11 +48,12 @@ traffic add uncertainty. Unlimited retention cannot fit a finite quota forever.
 2. Capture production row counts and fingerprints, check schema dependencies and
    apply the storage migration transactionally. Configure the validated existing
    target list with collection disabled. Compare all original data again.
-3. Deploy `status-uptime-collector` with JWT verification enabled. Configure a
-   dedicated `STATUS_COLLECTOR_SECRET` in Edge secrets and Supabase Vault through
-   parameterized requests, never in source, migration history or logs. The Cron
-   request carries a platform JWT plus the separate private collector header.
-   Install the supported Cron and HTTP extensions.
+3. Deploy `status-uptime-collector` with JWT verification enabled. Store the
+   existing project service JWT in Supabase Vault through a parameterized
+   request, never in source, migration history or logs. The Cron request uses
+   that JWT. No new Edge-secret setting is required. Install the supported Cron
+   and HTTP extensions. Verify that forged and ordinary user tokens are rejected
+   and an authorized request sees a disabled collector before enabling it.
 4. Set `STATUS_COLLECTION_BACKEND=atomic` and keep `STATUS_STORAGE=supabase`.
    The checked GitHub workflow then skips its recurring uptime/rebuild jobs;
    manual dispatches use the same lease, batches and database rebuild. Allow any
@@ -73,4 +76,4 @@ Do not roll back to an older legacy writer while batches exist: an old reader
 would omit those observations. Do not drop the migration to roll back scheduling.
 Health auditing remains on its existing workflow. The storage migration is
 applied with all original rows preserved. Scheduling remains disabled until
-the dedicated-secret hosted authentication checks and cutover checks pass.
+the platform service-role hosted authentication checks and cutover checks pass.

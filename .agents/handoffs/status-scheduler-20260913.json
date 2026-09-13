@@ -1,5 +1,5 @@
 {
-  "at": "2026-09-13T11:52:55.413058+00:00",
+  "at": "2026-09-13T12:29:04.548815+00:00",
   "tasks": [
     {
       "id": "revalidate_schedule_and_measure_write_volume",
@@ -33,7 +33,7 @@
     "Use synthetic targets for fault tests; production scheduling changes require completed capacity, preservation and rollback checks."
   ],
   "production_mutations": true,
-  "stage": "storage_applied_auth_followup",
+  "stage": "platform_auth_followup",
   "evidence": [
     "SCHEDULER.md",
     "tests/collector/README.md",
@@ -46,7 +46,11 @@
     "status-edge-disabled-verification.json",
     "status-current-space-reuse.json",
     "status-private-auth-red.log",
-    "status-private-auth-green.log"
+    "status-private-auth-green.log",
+    "status-platform-auth-unit.log",
+    "status-platform-gateway-verification.json",
+    "status-committable-contracts-platform_distinct/",
+    "status-collector-secret-provision.json"
   ],
   "validation": {
     "unit_before_capacity_case": 85,
@@ -54,13 +58,18 @@
     "browser": 27,
     "sql": 17,
     "projection_parity": 4,
-    "http": 10,
+    "http": 11,
     "build": "passed",
     "lint": "passed",
-    "deno": "passed"
+    "deno": "passed",
+    "platform_auth_cases": 39,
+    "live_gateway_forged_signature": "rejected before handler"
   },
   "storage_migration": "20260913100307",
   "production_merge": "4e03491a5748a03da58e533880f4c86fabd07acb",
   "cron_enabled": false,
-  "atomic_github_variable_enabled": false
+  "atomic_github_variable_enabled": false,
+  "auth_followup_merge": "db319694867e722cc4006099c14e8d4e3da27797",
+  "edge_secret_write": "HTTP 403; not applied",
+  "unused_vault_secret": true
 }
