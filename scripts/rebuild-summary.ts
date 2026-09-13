@@ -3,11 +3,13 @@ import path from 'node:path';
 
 import type { ProbeRecord } from '../shared/types';
 import { loadTargets } from './lib/config';
+import { atomicCollectorEnabled } from './lib/collector-backend';
 import { withDataBranch } from './lib/data-branch';
 import { shouldWriteGit, shouldWriteSupabase, storageMode } from './lib/storage-mode';
 import { parseJsonl, rebuild } from './lib/summary';
 import {
   hasSupabaseWriteConfig,
+  rebuildAtomicStatus,
   readProbeRecordsSinceFromSupabase,
   writeStatusRunToSupabase,
 } from './lib/supabase-store';
@@ -39,6 +41,11 @@ async function readHistoryRecords(
 
 async function main(): Promise<void> {
   const mode = storageMode();
+  if (atomicCollectorEnabled()) {
+    if (mode !== 'supabase') throw new Error('Atomic rebuild requires STATUS_STORAGE=supabase');
+    await rebuildAtomicStatus();
+    return;
+  }
   const targets = await loadTargets();
   const now = new Date();
 

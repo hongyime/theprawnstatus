@@ -19,7 +19,8 @@
     "paths": {
       "@/*": ["src/*"],
       "@shared/*": ["shared/*"]
-    }
+    },
+    "allowImportingTsExtensions": true
   },
   "include": ["src", "scripts", "shared", "vite.config.ts", "vitest.config.ts", "eslint.config.js"]
 }

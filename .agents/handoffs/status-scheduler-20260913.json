@@ -1,0 +1,57 @@
+{
+  "at": "2026-09-13T11:24:29.061021+00:00",
+  "tasks": [
+    {
+      "id": "revalidate_schedule_and_measure_write_volume",
+      "done": true
+    },
+    {
+      "id": "design_lossless_capacity_and_atomic_collector_contract",
+      "done": true
+    },
+    {
+      "id": "implement_bounded_authenticated_collector_and_readers",
+      "done": true
+    },
+    {
+      "id": "verify_storage_auth_lease_failure_and_browser_contracts",
+      "done": true
+    },
+    {
+      "id": "release_safe_migration_schedule_and_verify_production",
+      "done": false
+    },
+    {
+      "id": "publish_html_markdown_and_preservation_evidence",
+      "done": false
+    }
+  ],
+  "base": "8d834853a5b2d32c7ad27a3ca9e726765b2c9530",
+  "constraints": [
+    "All application records stay in Supabase; no expiry or record deletion.",
+    "No paid services, external notifications, shared Docker or SGSHIOK process changes.",
+    "Use synthetic targets for fault tests; production scheduling changes require completed capacity, preservation and rollback checks."
+  ],
+  "production_mutations": false,
+  "stage": "local_checks_passed_hosted_review_pending",
+  "evidence": [
+    "SCHEDULER.md",
+    "tests/collector/README.md",
+    "status-scheduler-app-checks.json",
+    "status-committable-contracts-capacity_rls/",
+    "status-batch-capacity-v1.json",
+    "status-capacity-headroom.json",
+    "status-release-preflight.json"
+  ],
+  "validation": {
+    "unit_before_capacity_case": 85,
+    "capacity_and_recovery_cases": 27,
+    "browser": 27,
+    "sql": 17,
+    "projection_parity": 4,
+    "http": 10,
+    "build": "passed",
+    "lint": "passed",
+    "deno": "passed"
+  }
+}

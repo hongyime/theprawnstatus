@@ -43,3 +43,49 @@ jobs:
           name: status-browser-failure
           path: test-results/
           retention-days: 3
+
+  collector-contracts:
+    name: Collector storage and HTTP contracts
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:17.6-alpine
+        env:
+          POSTGRES_PASSWORD: synthetic-status-fixture
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 5s
+          --health-timeout 5s --health-retries 10
+    env:
+      PGHOST: 127.0.0.1
+      PGPORT: '5432'
+      PGUSER: postgres
+      PGPASSWORD: synthetic-status-fixture
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
+        with:
+          node-version: '24'
+          cache: npm
+      - uses: denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed
+        with:
+          deno-version: v2.9.6
+      - run: npm ci
+      - name: Install the pinned PostgREST fixture runtime
+        run: |
+          mkdir -p "$RUNNER_TEMP/status-tools"
+          curl --fail --location --retry 2 --max-time 90 https://github.com/PostgREST/postgrest/releases/download/v14.5/postgrest-v14.5-linux-static-x86-64.tar.xz -o "$RUNNER_TEMP/status-tools/postgrest.tar.xz"
+          echo "ab5cc7e974d4940447991804588cfb8b3f7b2c57b691f0905df04d51ede69470  $RUNNER_TEMP/status-tools/postgrest.tar.xz" | sha256sum --check
+          tar -xJf "$RUNNER_TEMP/status-tools/postgrest.tar.xz" -C "$RUNNER_TEMP/status-tools"
+      - run: deno check --no-config supabase/functions/status-uptime-collector/index.ts
+      - run: python3 tests/collector/run.py
+        env:
+          STATUS_TEST_ARTIFACT_DIR: ${{ runner.temp }}/status-contracts
+          STATUS_TEST_POSTGREST: ${{ runner.temp }}/status-tools/postgrest
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: collector-contract-results
+          path: ${{ runner.temp }}/status-contracts/
+          retention-days: 3
