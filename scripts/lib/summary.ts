@@ -173,15 +173,36 @@ export function applyIncrement(
 ): Summary {
   const syntheticRecords = windowRecords ?? [...summaryToRecords(summary, targets, now), ...records];
   const rebuilt = rebuild(syntheticRecords, targets, now);
-  const previousP95 = new Map(summary.targets.map((target) => [target.id, target.p95_ms]));
+  const previousTargets = new Map(summary.targets.map((target) => [target.id, target]));
 
   return {
     ...rebuilt,
     generated_at: now.toISOString(),
-    targets: rebuilt.targets.map((target) => ({
-      ...target,
-      p95_ms: previousP95.get(target.id) ?? target.p95_ms,
-    })),
+    targets: rebuilt.targets.map((target) => {
+      const previous = previousTargets.get(target.id);
+      const retainedDays = (previous?.days ?? []).filter((bucket) =>
+        utcDayNumber(bucket.d) >= oldestKeptDay(now) && bucket.d <= utcDay(now),
+      );
+      // Collectors supply complete current-day samples. Replace those day
+      // buckets while retaining earlier evidence inside the display window.
+      const daysByDate = new Map(retainedDays.map((bucket) => [bucket.d, bucket]));
+      const observedDays = new Set(target.days.map((bucket) => bucket.d));
+      for (const bucket of target.days) daysByDate.set(bucket.d, bucket);
+      const days = [...daysByDate.values()].sort((a, b) => a.d.localeCompare(b.d));
+      const total = days.reduce((sum, bucket) => sum + bucket.n, 0);
+      const ok = days.reduce((sum, bucket) => sum + bucket.ok, 0);
+      const retainsEarlierDays = retainedDays.some((bucket) => !observedDays.has(bucket.d));
+
+      return {
+        ...target,
+        days,
+        uptime_90d: total === 0 ? null : ok / total,
+        // A day's samples cannot reconstruct a full-window percentile. Keep
+        // the last full-window value until the daily raw-sample rebuild.
+        p50_ms: retainsEarlierDays ? previous?.p50_ms ?? target.p50_ms : target.p50_ms,
+        p95_ms: previous?.p95_ms ?? target.p95_ms,
+      };
+    }),
   };
 }
 

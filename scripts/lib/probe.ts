@@ -70,6 +70,16 @@ function isRedirect(status: number): boolean {
   return status >= 300 && status <= 399;
 }
 
+function discardBody(response: Response): void {
+  // Uptime needs response headers only. Cleanup must not delay or change the
+  // observed status when a stream's cancellation fails or never settles.
+  try {
+    void response.body?.cancel().catch(() => undefined);
+  } catch {
+    // A failed cleanup is separate from the completed HTTP probe.
+  }
+}
+
 async function fetchWithRedirects(
   url: string,
   fetchImpl: typeof fetch,
@@ -97,6 +107,8 @@ async function fetchWithRedirects(
       return response;
     }
 
+    discardBody(response);
+
     if (redirects === MAX_REDIRECTS) {
       throw new DOMException('Too many redirects', 'AbortError');
     }
@@ -120,6 +132,7 @@ async function runAttempt(
       signal,
       target.follow_redirects !== false,
     );
+    discardBody(response);
     return {
       status: response.status,
       ms: Math.round(options.nowMs() - started),
