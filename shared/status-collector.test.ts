@@ -49,6 +49,39 @@ describe('authenticated bounded collector', () => {
     expect(rpc).not.toHaveBeenCalled();
   });
 
+  it('accepts a private collector header independently of the platform JWT', async () => {
+    const rpc = vi.fn().mockResolvedValue({ state: 'disabled' });
+    const handler = createStatusCollector({
+      secret,
+      rpc,
+      authorizationHeader: 'x-status-collector-authorization',
+    });
+    const response = await handler(
+      new Request('https://collector.invalid', {
+        method: 'POST',
+        headers: {
+          authorization: 'Bearer synthetic-platform-jwt',
+          'x-status-collector-authorization': 'Bearer ' + secret,
+        },
+      }),
+    );
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ state: 'disabled', checked: 0 });
+    expect(rpc).toHaveBeenCalledTimes(1);
+  });
+
+  it('requires the configured private header even when another bearer header matches', async () => {
+    const rpc = vi.fn();
+    const handler = createStatusCollector({
+      secret,
+      rpc,
+      authorizationHeader: 'x-status-collector-authorization',
+    });
+    const response = await handler(request('Bearer ' + secret));
+    expect(response.status).toBe(401);
+    expect(rpc).not.toHaveBeenCalled();
+  });
+
   it.each(['disabled', 'busy', 'complete'])('skips probes for a %s slot', async (state) => {
     const rpc = vi.fn().mockResolvedValue({ state });
     const probeTarget = vi.fn();

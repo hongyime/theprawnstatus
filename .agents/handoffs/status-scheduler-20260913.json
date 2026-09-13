@@ -1,5 +1,5 @@
 {
-  "at": "2026-09-13T11:24:29.061021+00:00",
+  "at": "2026-09-13T11:52:55.413058+00:00",
   "tasks": [
     {
       "id": "revalidate_schedule_and_measure_write_volume",
@@ -32,8 +32,8 @@
     "No paid services, external notifications, shared Docker or SGSHIOK process changes.",
     "Use synthetic targets for fault tests; production scheduling changes require completed capacity, preservation and rollback checks."
   ],
-  "production_mutations": false,
-  "stage": "local_checks_passed_hosted_review_pending",
+  "production_mutations": true,
+  "stage": "storage_applied_auth_followup",
   "evidence": [
     "SCHEDULER.md",
     "tests/collector/README.md",
@@ -41,7 +41,12 @@
     "status-committable-contracts-capacity_rls/",
     "status-batch-capacity-v1.json",
     "status-capacity-headroom.json",
-    "status-release-preflight.json"
+    "status-release-preflight.json",
+    "status-storage-migration-application.json",
+    "status-edge-disabled-verification.json",
+    "status-current-space-reuse.json",
+    "status-private-auth-red.log",
+    "status-private-auth-green.log"
   ],
   "validation": {
     "unit_before_capacity_case": 85,
@@ -53,5 +58,9 @@
     "build": "passed",
     "lint": "passed",
     "deno": "passed"
-  }
+  },
+  "storage_migration": "20260913100307",
+  "production_merge": "4e03491a5748a03da58e533880f4c86fabd07acb",
+  "cron_enabled": false,
+  "atomic_github_variable_enabled": false
 }

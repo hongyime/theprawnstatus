@@ -16,6 +16,7 @@ type Rpc = (
 ) => Promise<unknown>;
 interface CollectorDependencies {
   secret: string;
+  authorizationHeader?: 'authorization' | 'x-status-collector-authorization';
   rpc: Rpc;
   probeTarget?: (target: TargetConfig, signal: AbortSignal) => Promise<ProbeRecord>;
   budgetMs?: number;
@@ -77,7 +78,7 @@ async function authorized(header: string | null, secret: string): Promise<boolea
   return difference === 0;
 }
 
-/** The hosted adapter supplies its service JWT; no caller supplies targets or IDs. */
+/** The hosted adapter uses a dedicated private header; callers supply no targets or IDs. */
 export function createStatusCollector(dependencies: CollectorDependencies) {
   const probeTarget = dependencies.probeTarget ?? ((target, signal) => probe(target, { signal }));
   const requestedBudget = dependencies.budgetMs ?? COLLECTOR_BUDGET_MS;
@@ -88,7 +89,12 @@ export function createStatusCollector(dependencies: CollectorDependencies) {
   return async (request: Request): Promise<Response> => {
     if (request.method !== 'POST')
       return Response.json({ error: 'method_not_allowed' }, { status: 405 });
-    if (!(await authorized(request.headers.get('authorization'), dependencies.secret))) {
+    if (
+      !(await authorized(
+        request.headers.get(dependencies.authorizationHeader ?? 'authorization'),
+        dependencies.secret,
+      ))
+    ) {
       return Response.json({ error: 'unauthorized' }, { status: 401 });
     }
     const controller = new AbortController();

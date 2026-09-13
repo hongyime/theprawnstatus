@@ -18,6 +18,8 @@ def checked(name):
 def request(url, method='GET', value=None, token=None, prefer=None):
     headers={}
     if token: headers['Authorization']='Bearer '+token
+    if url.startswith('http://127.0.0.1:54386/') and token==service:
+        headers['x-status-collector-authorization']='Bearer '+collector_secret
     if prefer: headers['Prefer']=prefer
     data=None if value is None else json.dumps(value).encode()
     if data is not None: headers['Content-Type']='application/json'
@@ -58,7 +60,7 @@ try:
     password=secrets.token_urlsafe(32); jwt_secret=secrets.token_urlsafe(48)
     authenticator='status_http_'+args.label
     lab.sql('create role '+authenticator+' login password '+lab.literal(password)+'; grant anon, authenticated, service_role to '+authenticator)
-    service=jwt('service_role',jwt_secret); anon=jwt('anon',jwt_secret)
+    service=jwt('service_role',jwt_secret); anon=jwt('anon',jwt_secret);collector_secret=secrets.token_urlsafe(48)
     env={k:v for k,v in os.environ.items() if not k.startswith(('SUPABASE_','PGRST_'))}
     env['PATH']=str(lab.config['binary'])+os.pathsep+env.get('PATH','')
     env.update(PGRST_DB_URI=f"postgresql://{authenticator}:{password}@127.0.0.1:{lab.config['port']}/{database}",PGRST_DB_SCHEMAS='public',PGRST_DB_ANON_ROLE='anon',PGRST_JWT_SECRET=jwt_secret,PGRST_SERVER_HOST='127.0.0.1',PGRST_SERVER_PORT='54385',PGRST_DB_POOL='3')
@@ -86,7 +88,7 @@ try:
     assert inserted['runner']=='github-actions' and inserted['window_days']==90 and inserted['id']>0
     archive=fingerprint('status_runs_legacy')
     checked('legacy REST insert preserves generated identity and default columns')
-    activity={'rpc':0,'probe':0,'active':0,'max_active':0}; lock=threading.Lock()
+    activity={'rpc':0,'probe':0,'active':0,'max_active':0,'credential_leaks':0}; lock=threading.Lock()
     class Handler(BaseHTTPRequestHandler):
         def log_message(self,*args): pass
         def do_GET(self): self.respond()
@@ -102,6 +104,7 @@ try:
                 self.send_response(status); self.send_header('Content-Type','application/json'); self.send_header('Content-Length',str(len(body))); self.end_headers(); self.wfile.write(body)
                 return
             with lock:
+                if any(self.headers.get(k) for k in ['Authorization','apikey','x-status-collector-authorization']):activity['credential_leaks']+=1
                 activity['probe']+=1; activity['active']+=1; activity['max_active']=max(activity['max_active'],activity['active'])
             try:
                 time.sleep(.08)
@@ -116,10 +119,10 @@ try:
     targets=[{'id':f'target-{i}','name':f'Fixture {i} 雪','url':f'http://127.0.0.1:54387/'+('failure' if i==21 else 'redirect' if i==20 else 'ok'),'expect':200} for i in range(22)]
     lab.sql("insert into status_collector_leases(runner,enabled,targets) values ('github-actions',true,"+lab.json_literal(targets)+')')
     harness=out/f'status-http-{args.label}-entry.ts'
-    harness.write_text('import {createCollectorRpc,createStatusCollector} from '+json.dumps((root/'shared/status-collector.ts').as_uri())+';\nconst key=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;\nDeno.serve({hostname:"127.0.0.1",port:54386},createStatusCollector({secret:key,rpc:createCollectorRpc(Deno.env.get("SUPABASE_URL")!,key)}));\n')
+    harness.write_text('import {createCollectorRpc,createStatusCollector} from '+json.dumps((root/'shared/status-collector.ts').as_uri())+';\nconst key=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;\nDeno.serve({hostname:"127.0.0.1",port:54386},createStatusCollector({secret:Deno.env.get("STATUS_COLLECTOR_SECRET")!,authorizationHeader:"x-status-collector-authorization",rpc:createCollectorRpc(Deno.env.get("SUPABASE_URL")!,key)}));\n')
     deno_env={k:v for k,v in os.environ.items() if not k.startswith(('SUPABASE_','PGRST_'))}
-    deno_env.update(SUPABASE_URL='http://127.0.0.1:54387',SUPABASE_SERVICE_ROLE_KEY=service)
-    deno=launch([os.environ.get('STATUS_TEST_DENO','deno'),'run','--no-config','--allow-env=SUPABASE_URL,SUPABASE_SERVICE_ROLE_KEY','--allow-net=127.0.0.1',str(harness)],deno_env,'deno')
+    deno_env.update(SUPABASE_URL='http://127.0.0.1:54387',SUPABASE_SERVICE_ROLE_KEY=service,STATUS_COLLECTOR_SECRET=collector_secret)
+    deno=launch([os.environ.get('STATUS_TEST_DENO','deno'),'run','--no-config','--allow-env=SUPABASE_URL,SUPABASE_SERVICE_ROLE_KEY,STATUS_COLLECTOR_SECRET','--allow-net=127.0.0.1',str(harness)],deno_env,'deno')
     endpoint='http://127.0.0.1:54386/'
     wait_http(endpoint,deno)
     assert request(endpoint)[0]==405
@@ -167,6 +170,8 @@ try:
     assert json.loads(node_result.stdout.strip().splitlines()[-1])=={'today':expected_today,'all':22*after_node[0]+1,'retained':True}
     assert fingerprint('status_runs_legacy')==archive and fingerprint('status_samples')==old_samples
     checked('real Node recovery and rebuild use the atomic contract and read both preserved storage formats')
+    assert activity['credential_leaks']==0
+    checked('private collector and database credentials never reach synthetic provider requests')
     report.update(stage='passed',check_count=len(report['checks']),postgrest_version=pgrst['version'],postgres_version=lab.value("select to_json(version())"),deno_version=subprocess.check_output([os.environ.get('STATUS_TEST_DENO','deno'),'--version'],text=True).splitlines()[0],activity=activity,legacy_samples_preserved=old_samples,legacy_archive_preserved=archive)
 except Exception as error:
     report.update(stage='failed',error_type=type(error).__name__,error=str(error)[:1000]); raise

@@ -16,7 +16,9 @@ The 145-second lease fences expired writers. Identical commit retries do not
 rewrite rows. The 140-second overall deadline includes bounded database requests,
 probe retries and redirect handling. Public or ordinary user JWTs cannot invoke
 the collector: the hosted endpoint keeps platform JWT verification and also
-requires the server's service JWT. Callers cannot supply target URLs.
+requires `X-Status-Collector-Authorization: Bearer <private collector secret>`.
+The private secret grants collection access only; the database credential stays
+inside the Edge runtime. Callers cannot supply target URLs.
 
 At 400,000,000 application database bytes, the claim refuses new collection
 before any probes or data writes. Existing history stays available and the UI
@@ -30,7 +32,10 @@ summary per legacy run, the old layout occupied 274.8 MB and the batch layout
 the projection in 26.8 seconds. A burst of 1,000 current-projection updates used
 21.7 MB and generated 27.9 MB of WAL. These are synthetic PostgreSQL 17.11 Windows
 measurements, not a hosted billing month; production uses PostgreSQL 17.6 Linux.
-Autovacuum timing, cron history, health history, frontend egress and actual
+After vacuum, a second burst of 1,000 updates grew that relation by another
+5.2 MB to 26.9 MB; the initial expectation of less than 2 MB extra growth failed.
+This is additional evidence against treating the small fresh-layout measurement
+as a sustained-usage guarantee. Autovacuum timing, cron history, health history, frontend egress and actual
 traffic add uncertainty. Unlimited retention cannot fit a finite quota forever.
 
 ## Release order
@@ -41,9 +46,11 @@ traffic add uncertainty. Unlimited retention cannot fit a finite quota forever.
 2. Capture production row counts and fingerprints, check schema dependencies and
    apply the storage migration transactionally. Configure the validated existing
    target list with collection disabled. Compare all original data again.
-3. Deploy `status-uptime-collector` with JWT verification enabled. Store its
-   service JWT in Supabase Vault through a parameterized request, never in source,
-   migration history or logs. Install the supported Cron and HTTP extensions.
+3. Deploy `status-uptime-collector` with JWT verification enabled. Configure a
+   dedicated `STATUS_COLLECTOR_SECRET` in Edge secrets and Supabase Vault through
+   parameterized requests, never in source, migration history or logs. The Cron
+   request carries a platform JWT plus the separate private collector header.
+   Install the supported Cron and HTTP extensions.
 4. Set `STATUS_COLLECTION_BACKEND=atomic` and keep `STATUS_STORAGE=supabase`.
    The checked GitHub workflow then skips its recurring uptime/rebuild jobs;
    manual dispatches use the same lease, batches and database rebuild. Allow any
@@ -64,5 +71,6 @@ switching storage formats or deleting evidence.
 
 Do not roll back to an older legacy writer while batches exist: an old reader
 would omit those observations. Do not drop the migration to roll back scheduling.
-Health auditing remains on its existing workflow. At release preparation time,
-the new production migration and schedules have not yet been enabled.
+Health auditing remains on its existing workflow. The storage migration is
+applied with all original rows preserved. Scheduling remains disabled until
+the dedicated-secret hosted authentication checks and cutover checks pass.
