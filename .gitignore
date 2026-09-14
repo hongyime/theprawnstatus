@@ -18,6 +18,11 @@ data-wt*/
 
 
 
+# Browser-test artifacts stay local; CI retains failure evidence briefly.
+test-results/
+playwright-report/
+__pycache__/
+
 # AI / editor dot directories (managed via sourcerepo)
 .*
 !.github/
@@ -53,7 +58,3 @@ skills/
 skills-lock.json
 docs/
 # End AI / editor dot directories (managed via sourcerepo)
-# Browser-test artifacts stay local; CI retains failure evidence briefly.
-test-results/
-playwright-report/
-__pycache__/
