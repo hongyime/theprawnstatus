@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react';
 
 import { Banner } from './components/Banner';
+import { DeploymentSection } from './components/DeploymentSection';
 import { HealthTable } from './components/HealthTable';
-import { TargetRow } from './components/TargetRow';
 import { useHealthData } from './hooks/useHealthData';
 import { useStatusData } from './hooks/useStatusData';
 
@@ -60,38 +60,12 @@ function App(): ReactNode {
           ) : null}
         </div>
 
-        <section className="space-y-3">
-          <div className="border-3 border-ink bg-paper p-3 text-center shadow-hard">
-            <div className="mx-auto max-w-3xl">
-              <h2 className="font-display text-2xl font-bold uppercase">Deployments</h2>
-              <p className="font-display text-xs font-bold uppercase tabular opacity-70">
-                {loadedTargets.length} targets - scheduled every 5 min - stale after 20 min - page
-                refreshes every 2 min while visible
-              </p>
-            </div>
-          </div>
-
-          {status.loading ? (
-            <div className="border-3 border-ink bg-paper p-4 font-display font-bold uppercase shadow-hard">
-              Loading status data
-            </div>
-          ) : loadedTargets.length === 0 ? (
-            <div className="border-3 border-ink bg-paper p-4 font-display font-bold uppercase shadow-hard">
-              No deployment samples yet
-            </div>
-          ) : (
-            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-              {loadedTargets.map((target) => (
-                <TargetRow
-                  key={target.id}
-                  target={target}
-                  generatedAt={status.data?.generated_at ?? null}
-                  stale={status.stale}
-                />
-              ))}
-            </div>
-          )}
-        </section>
+        <DeploymentSection
+          targets={loadedTargets}
+          generatedAt={status.data?.generated_at ?? null}
+          stale={status.stale}
+          loading={status.loading}
+        />
 
         <HealthTable
           report={health.report}

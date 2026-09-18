@@ -253,9 +253,11 @@ export function HealthTable({
       ) : (
         groupRows(rows, group, flatGroupLabel).map(([label, groupedRows]) => (
           <div key={label} className="space-y-3">
-            <div className="border-b-3 border-ink bg-neo px-3 py-2 font-display text-xs font-bold uppercase">
-              {checkLabel(label)} - {groupedRows.length}
-            </div>
+            {group !== 'none' && (
+              <div className="border-b-3 border-ink bg-neo px-3 py-2 font-display text-xs font-bold uppercase">
+                {checkLabel(label)} - {groupedRows.length}
+              </div>
+            )}
             <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
               {groupedRows.map((repo) => (
                 <RepoCard
