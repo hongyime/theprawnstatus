@@ -125,5 +125,9 @@
       }
     }
   ],
-  "exempt": {}
+  "exempt": {
+    "sgSHIOK2026": [
+      "notice_names_organisation"
+    ]
+  }
 }
