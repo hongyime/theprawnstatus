@@ -27,17 +27,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
       - name: Clean up old Vercel deployments
+        shell: pwsh
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_TEAM_ID: ${{ secrets.VERCEL_TEAM_ID }}
         run: |
-          if [ "${{ inputs.dry_run }}" = "true" ]; then
-            node scripts/cleanup-deployments.mjs --dry-run
-          else
-            node scripts/cleanup-deployments.mjs
-          fi
+          if ('${{ inputs.dry_run }}' -eq 'true') {
+            ./scripts/cleanup-deployments.ps1 -DryRun
+          } else {
+            ./scripts/cleanup-deployments.ps1
+          }
