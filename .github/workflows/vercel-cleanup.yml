@@ -1,0 +1,43 @@
+name: Vercel Deployment Cleanup
+
+# Vercel's own deploymentExpiration setting (30 days / keep 10) is not
+# reliably enforced on the Hobby plan — projects have been found with
+# 13-16 retained deployments dating back 6+ months, exhausting the
+# 10GB free storage limit. This workflow is the real enforcement:
+# it runs weekly and deletes everything except the current production
+# deployment + the 5 most recent deployments, per project.
+
+on:
+  schedule:
+    - cron: '0 3 * * 0'   # weekly, Sunday 03:00 UTC
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (log only, no deletions)'
+        type: boolean
+        default: false
+
+concurrency:
+  group: vercel-cleanup
+  cancel-in-progress: false
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Clean up old Vercel deployments
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_TEAM_ID: ${{ secrets.VERCEL_TEAM_ID }}
+        run: |
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            node scripts/cleanup-deployments.mjs --dry-run
+          else
+            node scripts/cleanup-deployments.mjs
+          fi
