@@ -9,3 +9,7 @@
 Next: pass hosted checks, merge and deploy the gateway-recovery fix, then observe two consecutive recurring slots and publish the HTML/Markdown checkpoint. Keep the original failed response in the evidence. All data stays in Supabase. At 400 MB the collector and only its two Cron jobs disable while history remains readable. Monthly quota fit and sustained growth remain unproven.
 
 The pg_net installation has a public-extension namespace advisor warning; pg_net 0.20.4 reports non-relocatable. Its objects and permissions need inspection before considering a move; do not drop it or delete retained operational evidence. No Edge secret setting was applied after HTTP 403; the unused request secret remains in Vault.
+
+## Reviewed workspace maintenance - 2026-09-27
+
+Publish the reviewed portability and privacy maintenance from the current default branch, preserving concurrent upstream work and original workspace changes. Validation is limited to the documented offline fixtures and hosted checks; no live data job or deployment command was executed locally.
