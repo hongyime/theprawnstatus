@@ -81,9 +81,9 @@ function App(): ReactNode {
           <div className="flex flex-col items-center gap-2">
             <a
               className="focus-ring border-b-3 border-ink font-display text-base font-bold uppercase hover:bg-neo"
-              href="mailto:hello@hong-yi.me"
+              href="https://github.com/hongyime/theprawnstatus/issues"
             >
-              hello@hong-yi.me
+              Contact maintainers
             </a>
             <a
               className="focus-ring border-b-3 border-ink font-display text-base font-bold uppercase hover:bg-neo"
