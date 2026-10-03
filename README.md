@@ -22,6 +22,14 @@ Live deployment: <https://theprawnstatus.vercel.app>
 
 ## Local development
 
+The npm commands below are shared by Windows and Linux. The optional
+`scripts/cleanup-deployments.ps1` administration tool runs with PowerShell 7
+(`pwsh -File scripts/cleanup-deployments.ps1 -DryRun`) on either platform.
+Supply its required environment variables securely. Even dry-run reads the
+remote deployment inventory; without `-DryRun` it deletes old deployments.
+It is not part of local development startup, and its operational behavior is
+not established by the application test suite.
+
 ```powershell
 npm install
 npm test

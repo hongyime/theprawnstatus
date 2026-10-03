@@ -1,3 +1,7 @@
+## Portability maintenance - 2026-09-27
+
+- Documented platform-neutral npm and optional PowerShell 7 maintenance invocation. Cleanup remains an explicit remote operation; no service or cleanup ran.
+
 # Current production exception
 
 2026-09-14 09:35 SGT emergency: status-uptime-5m Cron job 1 is now INACTIVE after the Vercel team reached 100% of its Fluid Active CPU allowance. This stops automatic external website probes; existing observations, the enabled collector lease and daily rebuild are retained. GitHub STATUS_COLLECTION_BACKEND remains atomic, so its recurring fallback jobs are skipped. Do not reactivate five-minute polling until CPU attribution and a budgeted cadence are reviewed. Historical data remains in Supabase. See the portfolio incident report; scheduled requests removed are not measured CPU savings.
