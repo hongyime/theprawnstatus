@@ -15,13 +15,13 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
         run: |
-          endpoint="$SUPABASE_URL/rest/v1/status_collector_leases?runner=eq.github-actions"
+          endpoint="$SUPABASE_URL/rest/v1/status_collector_leases?runner=eq.github-actions&select=runner,enabled,lease_expires_at,committed_slot"
           curl --fail --silent --show-error --request PATCH "$endpoint" \
             --header "apikey: $SUPABASE_SECRET_KEY" \
             --header "Authorization: Bearer $SUPABASE_SECRET_KEY" \
             --header 'Content-Type: application/json' \
             --header 'Prefer: return=representation' \
             --data '{"enabled":false}'
-          curl --fail --silent --show-error "$endpoint&select=runner,enabled,lease_expires_at,committed_slot" \
+          curl --fail --silent --show-error "$endpoint" \
             --header "apikey: $SUPABASE_SECRET_KEY" \
             --header "Authorization: Bearer $SUPABASE_SECRET_KEY"
