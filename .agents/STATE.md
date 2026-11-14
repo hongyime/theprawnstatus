@@ -6,6 +6,10 @@
 
 2026-09-14 09:35 SGT emergency: status-uptime-5m Cron job 1 is now INACTIVE after the Vercel team reached 100% of its Fluid Active CPU allowance. This stops automatic external website probes; existing observations, the enabled collector lease and daily rebuild are retained. GitHub STATUS_COLLECTION_BACKEND remains atomic, so its recurring fallback jobs are skipped. Do not reactivate five-minute polling until CPU attribution and a budgeted cadence are reviewed. Historical data remains in Supabase. See the portfolio incident report; scheduled requests removed are not measured CPU savings.
 
+## Live operations - 2026-11-14
+
+`uptime.yml` is disabled and the Supabase `github-actions` lease is `enabled: false`, verified by the successful Pause status collector run 43602818732. The matching migration is pushed but not applied: its DDL needs a Supabase database password or management access token, neither of which is available locally or in repository secrets. Vercel cleanup run 43602352349 made no list/delete decision because `VERCEL_TOKEN` was rejected as invalid; rotate that secret before rerunning. Do not re-enable either collector entry point without a reviewed capacity decision.
+
 # Project State
 
 2026-09-13: Supabase Cron and atomic storage are enabled; the 13:00 and 13:10 UTC runs each committed one batch of 22 observations. The 13:05 request failed before acquiring a lease: Supabase edge logs show HTTP 504 on claim_status_collection, returned as collector HTTP 503. Original sample, archived-summary and health fingerprints still match. A real full rebuild and desktop/mobile history checks pass. The follow-up retries HTTP 502/503/504 once after 250 ms within the original 15-second database deadline, using the exact same body. An uncertain claim can return busy without duplicate probes; identical commit retries use the existing idempotence contract. Authorization/rate-limit failures and invalid successful response bodies are not retried.
@@ -16,4 +20,4 @@ The pg_net installation has a public-extension namespace advisor warning; pg_net
 
 ## Maintenance hardening - 2026-11-14
 
-Implemented the reviewed maintenance hardening: cleanup guard, collector normalization and forward migration, conflict recovery, tree-based Git health reads, enriched health history, dashboard efficiency, and obsolete keepalive removal. No live cleanup, migration application, or paused collector activation ran. Unit (109), lint, type, production-build, browser (27 fixture-configured cases), offline PowerShell guard, and isolated PostgreSQL/Deno/PostgREST collector contracts pass. Changes are ready for human review/commit.
+Implemented and pushed the reviewed maintenance hardening: cleanup guard, collector normalization and forward migration, conflict recovery, tree-based Git health reads, enriched health history, dashboard efficiency, and obsolete keepalive removal. Unit (109), lint, type, production-build, browser (27 fixture-configured cases), offline PowerShell guard, and isolated PostgreSQL/Deno/PostgREST collector contracts pass. Live collector pause is verified; the Vercel and migration blockers are recorded above.
