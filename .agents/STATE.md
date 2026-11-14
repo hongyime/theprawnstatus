@@ -8,7 +8,7 @@
 
 ## Live operations - 2026-11-14
 
-`uptime.yml` is disabled and the Supabase `github-actions` lease is `enabled: false`, verified by the successful Pause status collector run 43602818732. The matching migration is pushed but not applied: its DDL needs a Supabase database password or management access token, neither of which is available locally or in repository secrets. Vercel cleanup run 43602352349 made no list/delete decision because `VERCEL_TOKEN` was rejected as invalid; rotate that secret before rerunning. Do not re-enable either collector entry point without a reviewed capacity decision.
+`uptime.yml` is disabled and the Supabase `github-actions` lease is `enabled: false`, verified by the successful Pause status collector run 43602818732. Migration `20261114000000_status_expect_default` is applied to production and present in the live migration ledger. Vercel cleanup run 43655396431 made no list/delete decision because `VERCEL_TOKEN` was rejected as invalid; replace the repository secret with a complete newly generated token before rerunning. Do not re-enable either collector entry point without a reviewed capacity decision.
 
 # Project State
 
@@ -20,4 +20,4 @@ The pg_net installation has a public-extension namespace advisor warning; pg_net
 
 ## Maintenance hardening - 2026-11-14
 
-Implemented and pushed the reviewed maintenance hardening: cleanup guard, collector normalization and forward migration, conflict recovery, tree-based Git health reads, enriched health history, dashboard efficiency, and obsolete keepalive removal. Unit (109), lint, type, production-build, browser (27 fixture-configured cases), offline PowerShell guard, and isolated PostgreSQL/Deno/PostgREST collector contracts pass. Live collector pause is verified; the Vercel and migration blockers are recorded above.
+Implemented and pushed the reviewed maintenance hardening: cleanup guard, collector normalization and forward migration, conflict recovery, tree-based Git health reads, enriched health history, dashboard efficiency, and obsolete keepalive removal. Unit (109), lint, type, production-build, browser (27 fixture-configured cases), offline PowerShell guard, and isolated PostgreSQL/Deno/PostgREST collector contracts pass. The forward migration is live and collector pause is verified; only the Vercel credential blocker remains.
