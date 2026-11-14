@@ -1,0 +1,27 @@
+name: Pause status collector
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pause:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Disable collector lease
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+        run: |
+          endpoint="$SUPABASE_URL/rest/v1/status_collector_leases?runner=eq.github-actions"
+          curl --fail --silent --show-error --request PATCH "$endpoint" \
+            --header "apikey: $SUPABASE_SECRET_KEY" \
+            --header "Authorization: Bearer $SUPABASE_SECRET_KEY" \
+            --header 'Content-Type: application/json' \
+            --header 'Prefer: return=representation' \
+            --data '{"enabled":false}'
+          curl --fail --silent --show-error "$endpoint&select=runner,enabled,lease_expires_at,committed_slot" \
+            --header "apikey: $SUPABASE_SECRET_KEY" \
+            --header "Authorization: Bearer $SUPABASE_SECRET_KEY"
