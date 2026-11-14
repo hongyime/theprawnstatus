@@ -14,7 +14,7 @@ begin
     return;
   end if;
   perform net.http_post(
-    url := ''https://esplfwgzljvdrnvqaisj.supabase.co/functions/v1/status-uptime-collector'',
+    url := ''https://<PROJECT_REF>.supabase.co/functions/v1/status-uptime-collector'',
     headers := jsonb_build_object(''Content-Type'', ''application/json'', ''Authorization'',
       ''Bearer '' || (select decrypted_secret from vault.decrypted_secrets where name = ''status_collector_service_jwt'')),
     body := ''{}''::jsonb, timeout_milliseconds := 145000);

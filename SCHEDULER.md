@@ -84,10 +84,12 @@ authentication checks. Recurring gateway recovery verification is in progress.
 2026-09-13: Supabase Cron and atomic storage are enabled; the 13:00 and 13:10 UTC runs each committed one batch of 22 observations. The 13:05 request failed before acquiring a lease: Supabase edge logs show HTTP 504 on claim_status_collection, returned as collector HTTP 503. Original sample, archived-summary and health fingerprints still match. A real full rebuild and desktop/mobile history checks pass. The follow-up retries HTTP 502/503/504 once after 250 ms within the original 15-second database deadline, using the exact same body. An uncertain claim can return busy without duplicate probes; identical commit retries use the existing idempotence contract. Authorization/rate-limit failures and invalid successful response bodies are not retried.
 
 `supabase/operations/status-cron.sql` recreates the two reviewed jobs **inactive**.
-Follow the release sequence before activation. Configure the existing validated
-targets and Vault secret `status_collector_service_jwt` first. The Redirects target
-expects HTTP 308 without following the redirect; the other targets default to 200.
-No credential is embedded in the SQL. Keep the Edge JWT-signature gateway enabled.
+Replace `<PROJECT_REF>` in that file with the target Supabase project reference
+before applying it; never apply the placeholder verbatim. Follow the release
+sequence before activation. Configure the existing validated targets and Vault
+secret `status_collector_service_jwt` first. The Redirects target expects HTTP
+308 without following the redirect; the other targets default to 200. No
+credential is embedded in the SQL. Keep the Edge JWT-signature gateway enabled.
 
 Production uses pg_cron 1.6.4, pg_net 0.20.4 and Vault 0.3.1. Collection runs every
 five minutes; the full rebuild runs at 03:03 UTC with a 60-second statement limit.

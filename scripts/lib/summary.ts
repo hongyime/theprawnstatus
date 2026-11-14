@@ -135,44 +135,13 @@ function buildTargetSummary(
   };
 }
 
-function summaryToRecords(summary: Summary, targets: TargetConfig[], now: Date): ProbeRecord[] {
-  const targetMap = new Map(targets.map((target) => [target.id, target]));
-  const records: ProbeRecord[] = [];
-
-  for (const targetSummary of summary.targets) {
-    const target = targetMap.get(targetSummary.id);
-    if (target === undefined) {
-      continue;
-    }
-
-    for (const bucket of targetSummary.days) {
-      if (utcDayNumber(bucket.d) < oldestKeptDay(now)) {
-        continue;
-      }
-
-      for (let index = 0; index < bucket.n; index += 1) {
-        records.push({
-          t: `${bucket.d}T12:00:00.000Z`,
-          id: target.id,
-          s: index < bucket.ok ? target.expect : 500,
-          ms: bucket.p50 ?? 0,
-        });
-      }
-    }
-  }
-
-  return records;
-}
-
 export function applyIncrement(
   summary: Summary,
-  records: ProbeRecord[],
   now: Date,
   targets: TargetConfig[],
-  windowRecords?: ProbeRecord[],
+  windowRecords: ProbeRecord[],
 ): Summary {
-  const syntheticRecords = windowRecords ?? [...summaryToRecords(summary, targets, now), ...records];
-  const rebuilt = rebuild(syntheticRecords, targets, now);
+  const rebuilt = rebuild(windowRecords, targets, now);
   const previousTargets = new Map(summary.targets.map((target) => [target.id, target]));
 
   return {

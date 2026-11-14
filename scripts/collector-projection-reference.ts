@@ -13,5 +13,5 @@ const now = new Date(input.now);
 const result =
   input.previous === undefined
     ? rebuild(input.records, input.targets, now)
-    : applyIncrement(input.previous, input.affected ?? [], now, input.targets, input.affected);
+    : applyIncrement(input.previous, now, input.targets, input.affected ?? []);
 process.stdout.write(JSON.stringify(result));

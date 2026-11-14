@@ -27,6 +27,7 @@ try:
     lab.sql((root/'supabase/migrations/20260811000000_status_store.sql').read_text())
     lab.sql('grant all on public.status_runs,public.status_samples,public.health_runs,public.health_history to service_role; grant usage,select on all sequences in schema public to service_role;')
     lab.sql((root/'supabase/migrations/20260913100307_status_atomic_collector.sql').read_text())
+    lab.sql((root/'supabase/migrations/20261114000000_status_expect_default.sql').read_text())
     assert lab.value("select json_build_array(has_function_privilege('anon','public.rls_auto_enable()','execute'),has_function_privilege('authenticated','public.rls_auto_enable()','execute'))")==[False,False]
     lab.sql('create table public.fixture_auto_rls_proof(id integer)')
     assert lab.value("select to_json(relrowsecurity) from pg_class where oid='public.fixture_auto_rls_proof'::regclass")

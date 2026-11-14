@@ -40,7 +40,7 @@ describe('summary', () => {
     const yesterday = [record('2026-08-09', 200), record('2026-08-09', 500)];
     const previous = rebuild(yesterday, targets, new Date('2026-08-09T23:00:00Z'));
     const today = [record('2026-08-10', 200, 300)];
-    const result = applyIncrement(previous, today, new Date('2026-08-10T01:00:00Z'), targets, today);
+    const result = applyIncrement(previous, new Date('2026-08-10T01:00:00Z'), targets, today);
 
     expect(result.targets[0].days).toEqual([
       { d: '2026-08-09', n: 2, ok: 1, p50: 100 },
@@ -48,7 +48,7 @@ describe('summary', () => {
     ]);
     expect(result.targets[0].uptime_90d).toBe(2 / 3);
     expect(result.targets[0].p50_ms).toBe(previous.targets[0].p50_ms);
-    const retry = applyIncrement(result, today, new Date('2026-08-10T01:00:00Z'), targets, today);
+    const retry = applyIncrement(result, new Date('2026-08-10T01:00:00Z'), targets, today);
     expect(retry).toEqual(result);
   });
 
@@ -64,7 +64,7 @@ describe('summary', () => {
     ], targets, new Date('2026-08-09T12:00:00Z'));
     const before = structuredClone(previous);
     const today = [record('2026-08-10', 200)];
-    const result = applyIncrement(previous, today, new Date('2026-08-10T12:00:00Z'), targets, today);
+    const result = applyIncrement(previous, new Date('2026-08-10T12:00:00Z'), targets, today);
 
     expect(result.targets[0].days.map((bucket) => bucket.d)).toEqual(['2026-05-13', '2026-08-10']);
     expect(result.targets[0].uptime_90d).toBe(1);
@@ -83,7 +83,7 @@ describe('summary', () => {
 
     for (const item of records) {
       seen.push(item);
-      summary = applyIncrement(summary, [item], now, targets, [...seen]);
+      summary = applyIncrement(summary, now, targets, [...seen]);
     }
 
     expect(withoutP95(summary)).toEqual(withoutP95(rebuild(records, targets, now)));

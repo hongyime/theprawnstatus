@@ -78,5 +78,6 @@ describe('evaluateHealth', () => {
 
     expect(updated.split('\n').filter(Boolean)).toHaveLength(2);
     expect(updated).toContain('"org_score":1');
+    expect(updated).toContain('"report"');
   });
 });

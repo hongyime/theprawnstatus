@@ -10,6 +10,7 @@ lab.sql('create database status_parity_'+args.label);lab.config['database']='sta
 lab.sql((root/'supabase/migrations/20260811000000_status_store.sql').read_text())
 lab.sql('grant all on all tables in schema public to service_role; grant usage,select on all sequences in schema public to service_role;')
 lab.sql((root/'supabase/migrations/20260913100307_status_atomic_collector.sql').read_text())
+lab.sql((root/'supabase/migrations/20261114000000_status_expect_default.sql').read_text())
 targets=[{'id':'alpha','name':'Alpha ☃','url':'https://alpha.invalid','expect':200},{'id':'beta','name':'Beta','url':'https://beta.invalid','expect':204},{'id':'empty','name':'Empty','url':'https://empty.invalid','expect':200}]
 now=datetime(2026,9,13,12,tzinfo=timezone.utc)
 stamp=lambda d:d.isoformat(timespec='milliseconds').replace('+00:00','Z')

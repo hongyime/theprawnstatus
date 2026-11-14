@@ -107,7 +107,6 @@ async function writeGitData(batch: ProbeBatch): Promise<void> {
       const allTodayRecords = [...existingRecords, ...batch.records];
       const summary = applyIncrement(
         existingSummary,
-        batch.records,
         batch.now,
         batch.targets,
         allTodayRecords,
@@ -130,7 +129,6 @@ async function writeSupabaseData(batch: ProbeBatch): Promise<void> {
   const allTodayRecords = [...existingRecords, ...batch.records];
   const summary = applyIncrement(
     existingSummary,
-    batch.records,
     batch.now,
     batch.targets,
     allTodayRecords,

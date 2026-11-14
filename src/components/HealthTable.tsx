@@ -56,22 +56,16 @@ function groupRows(
   return [...groups.entries()].sort((a, b) => a[0].localeCompare(b[0]));
 }
 
-function repoTrend(repoName: string, reports: HealthReport[]): RepoHealth[] {
-  return reports
-    .map((report) => report.repos.find((repo) => repo.name === repoName))
-    .filter((repo): repo is RepoHealth => repo !== undefined);
-}
-
 function RepoTrend({
   repoName,
-  reports,
+  samples,
   stale,
 }: {
   repoName: string;
-  reports: HealthReport[];
+  samples: RepoHealth[];
   stale: boolean;
 }): ReactNode {
-  const recent = repoTrend(repoName, reports).slice(-14);
+  const recent = samples;
   const aria =
     recent.length === 0
       ? `${repoName} has no recent standards samples.`
@@ -114,11 +108,11 @@ function RepoTrend({
 
 function RepoCard({
   repo,
-  reportHistory,
+  trend,
   stale,
 }: {
   repo: RepoHealth;
-  reportHistory: HealthReport[];
+  trend: RepoHealth[];
   stale: boolean;
 }): ReactNode {
   return (
@@ -148,7 +142,7 @@ function RepoCard({
           ))
         )}
       </div>
-      <RepoTrend repoName={repo.name} reports={reportHistory} stale={stale} />
+      <RepoTrend repoName={repo.name} samples={trend} stale={stale} />
     </article>
   );
 }
@@ -180,6 +174,16 @@ export function HealthTable({
       : report.repos;
     return sortedRows(filtered, sort);
   }, [nonCompliantOnly, report, sort]);
+
+  const trends = useMemo(() => {
+    const samplesByRepo = new Map<string, RepoHealth[]>();
+    for (const history of reportHistory.slice(-14)) {
+      for (const repo of history.repos) {
+        samplesByRepo.set(repo.name, [...(samplesByRepo.get(repo.name) ?? []), repo]);
+      }
+    }
+    return samplesByRepo;
+  }, [reportHistory]);
 
   if (loading) {
     return (
@@ -263,7 +267,7 @@ export function HealthTable({
                 <RepoCard
                   key={`${label}-${repo.name}`}
                   repo={repo}
-                  reportHistory={reportHistory}
+                  trend={trends.get(repo.name) ?? []}
                   stale={stale}
                 />
               ))}

@@ -137,6 +137,20 @@ describe('authenticated bounded collector', () => {
     expect(rpc.mock.calls[0][2].aborted).toBe(true);
   });
 
+  it('defaults an omitted trusted target expectation to 200 before probing', async () => {
+    const missingExpectation = targets.map(({ id, name, url }) => ({ id, name, url }));
+    const rpc = vi
+      .fn()
+      .mockResolvedValueOnce({ state: 'claimed', token, slot, targets: missingExpectation })
+      .mockResolvedValueOnce({ state: 'complete', slot });
+    const probeTarget = vi.fn(async (target: TargetConfig) => record(target));
+
+    const response = await createStatusCollector({ secret, rpc, probeTarget })(request());
+
+    expect(await response.json()).toEqual({ state: 'complete', checked: 22 });
+    expect(probeTarget.mock.calls[0][0]).toMatchObject({ expect: 200 });
+  });
+
   it.each([
     [],
     [...targets, ...targets],

@@ -22,6 +22,10 @@ export interface RepoFacts extends GithubRepo {
   rootMediaPresent: boolean;
 }
 
+interface GithubTree {
+  tree: Array<{ path: string; type: string; size?: number }>;
+}
+
 interface GithubClientOptions {
   token: string;
   org: string;
@@ -104,24 +108,6 @@ export class GithubClient {
     return repos;
   }
 
-  async getReadme(repo: string): Promise<{ size: number; text: string | null } | null> {
-    const readme = await this.request<{ size: number; content?: string; encoding?: string }>(
-      `/repos/${this.options.org}/${repo}/readme`,
-      true,
-    );
-    if (readme === null) {
-      return null;
-    }
-
-    return {
-      size: readme.size,
-      text:
-        readme.content !== undefined && readme.encoding === 'base64'
-          ? Buffer.from(readme.content, 'base64').toString('utf8')
-          : null,
-    };
-  }
-
   async getContentText(repo: string, filePath: string): Promise<string | null> {
     const content = await this.request<{ content?: string; encoding?: string }>(
       `/repos/${this.options.org}/${repo}/contents/${encodeURIComponent(filePath)}`,
@@ -135,29 +121,14 @@ export class GithubClient {
     return Buffer.from(content.content, 'base64').toString('utf8');
   }
 
-  async getFirstContentText(repo: string, paths: string[]): Promise<string | null> {
-    for (const filePath of paths) {
-      const text = await this.getContentText(repo, filePath);
-      if (text !== null) {
-        return text;
-      }
+  async getRootTree(repo: GithubRepo): Promise<GithubTree> {
+    const tree = await this.request<GithubTree>(
+      `/repos/${this.options.org}/${repo.name}/git/trees/${encodeURIComponent(repo.default_branch)}?recursive=1`,
+    );
+    if (tree === null) {
+      throw new Error(`Missing default tree for ${repo.name}`);
     }
-
-    return null;
-  }
-
-  async hasAnyContent(repo: string, paths: string[]): Promise<boolean> {
-    for (const filePath of paths) {
-      const content = await this.request<unknown>(
-        `/repos/${this.options.org}/${repo}/contents/${encodeURIComponent(filePath)}`,
-        true,
-      );
-      if (content !== null) {
-        return true;
-      }
-    }
-
-    return false;
+    return tree;
   }
 }
 
@@ -166,25 +137,35 @@ export async function fetchOrgRepoFacts(client: GithubClient): Promise<RepoFacts
   const facts: RepoFacts[] = [];
 
   for (const repo of repos) {
-    const readme = await client.getReadme(repo.name);
+    const rootFiles = new Map(
+      (await client.getRootTree(repo))
+        .tree.filter((entry) => entry.type === 'blob' && !entry.path.includes('/'))
+        .map((entry) => [entry.path, entry]),
+    );
+    const readme = [...rootFiles.values()].find((entry) =>
+      ['readme', 'readme.md', 'readme.markdown', 'readme.mdown', 'readme.mkdn', 'readme.rst', 'readme.txt', 'readme.adoc'].includes(
+        entry.path.toLowerCase(),
+      ),
+    );
+    const license = ['LICENSE', 'LICENSE.md', 'LICENCE', 'LICENCE.md']
+      .map((path) => rootFiles.get(path))
+      .find((entry) => entry !== undefined);
+    const notice = rootFiles.get('NOTICE');
     facts.push({
       ...repo,
-      licenseText: await client.getFirstContentText(repo.name, [
-        'LICENSE',
-        'LICENSE.md',
-        'LICENCE',
-        'LICENCE.md',
-      ]),
+      licenseText:
+        license === undefined ? null : await client.getContentText(repo.name, license.path),
       readmeSize: readme?.size ?? null,
-      readmeText: readme?.text ?? null,
-      noticeText: await client.getContentText(repo.name, 'NOTICE'),
-      rootMediaPresent: await client.hasAnyContent(repo.name, [
+      readmeText:
+        readme === undefined ? null : await client.getContentText(repo.name, readme.path),
+      noticeText: notice === undefined ? null : await client.getContentText(repo.name, notice.path),
+      rootMediaPresent: [
         'screenshot.png',
         'screenshot.jpg',
         'screenshot.jpeg',
         'screenshot.webp',
         'demo.gif',
-      ]),
+      ].some((path) => rootFiles.has(path)),
     });
   }
 

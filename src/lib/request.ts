@@ -44,6 +44,21 @@ export function requestJson<T>(
   });
 }
 
+export function requestText(
+  url: string,
+  signal?: AbortSignal,
+  headers?: HeadersInit,
+): Promise<string> {
+  return withDeadline(signal, REQUEST_TIMEOUT_MS, async (requestSignal) => {
+    const response = await fetch(url, { signal: requestSignal, headers, cache: 'no-store' });
+    if (!response.ok) {
+      await response.body?.cancel();
+      throw new Error(`Data request returned ${response.status}`);
+    }
+    return response.text();
+  });
+}
+
 /** A failed refresh should never replace newer loaded data with an older snapshot. */
 export function preferLoaded(
   loaded: { generated_at: string | null } | null,

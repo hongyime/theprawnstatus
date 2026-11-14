@@ -69,7 +69,7 @@ try:
     code, body=request('http://127.0.0.1:54385/status_runs?select=summary&order=generated_at.desc&limit=1')
     assert code==200 and json.loads(body)[0]['summary']['targets']==[]
     checked('original public endpoint reads existing data before migration')
-    lab.sql('begin; '+(root/'supabase/migrations/20260913100307_status_atomic_collector.sql').read_text()+' commit;')
+    lab.sql('begin; '+(root/'supabase/migrations/20260913100307_status_atomic_collector.sql').read_text()+(root/'supabase/migrations/20261114000000_status_expect_default.sql').read_text()+' commit;')
     for _ in range(60):
         code,body=request('http://127.0.0.1:54385/rpc/claim_status_collection','POST',{'p_runner':'github-actions'},service)
         if code==200: break

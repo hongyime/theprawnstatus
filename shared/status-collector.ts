@@ -32,29 +32,30 @@ function targetsFrom(value: unknown): TargetConfig[] {
   }
   const ids = new Set<string>();
   return value.map((target: unknown) => {
+    if (!object(target)) throw new Error('Invalid collector target');
+    const normalized: Record<string, unknown> = { ...target, expect: target.expect ?? 200 };
     if (
-      !object(target) ||
-      typeof target.id !== 'string' ||
-      !/^[a-z0-9-]{1,100}$/.test(target.id) ||
-      ids.has(target.id) ||
-      typeof target.name !== 'string' ||
-      target.name.length === 0 ||
-      target.name.length > 200 ||
-      typeof target.url !== 'string' ||
-      target.url.length > 2048 ||
-      !Number.isInteger(target.expect) ||
-      Number(target.expect) < 100 ||
-      Number(target.expect) > 599 ||
-      (target.follow_redirects !== undefined && typeof target.follow_redirects !== 'boolean')
+      typeof normalized.id !== 'string' ||
+      !/^[a-z0-9-]{1,100}$/.test(normalized.id) ||
+      ids.has(normalized.id) ||
+      typeof normalized.name !== 'string' ||
+      normalized.name.length === 0 ||
+      normalized.name.length > 200 ||
+      typeof normalized.url !== 'string' ||
+      normalized.url.length > 2048 ||
+      !Number.isInteger(normalized.expect) ||
+      Number(normalized.expect) < 100 ||
+      Number(normalized.expect) > 599 ||
+      (normalized.follow_redirects !== undefined && typeof normalized.follow_redirects !== 'boolean')
     ) {
       throw new Error('Invalid collector target');
     }
-    const url = new URL(target.url);
+    const url = new URL(normalized.url);
     if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password) {
       throw new Error('Invalid collector target URL');
     }
-    ids.add(target.id);
-    return target as unknown as TargetConfig;
+    ids.add(normalized.id);
+    return normalized as unknown as TargetConfig;
   });
 }
 

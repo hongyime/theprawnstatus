@@ -60,7 +60,7 @@ async function fixture(page: Page) {
     if (supabase || snapshot || git) {
       calls.push(path.split('/').at(-1)!);
       const statusRequest =
-        path.endsWith('/status_runs') ||
+        path.endsWith('/status_current') ||
         path.endsWith('/summary.json') ||
         path === '/snapshot.json';
       if (statusRequest && (mode.stallAll || (mode.stallPrimary && supabase))) return;
@@ -72,7 +72,7 @@ async function fixture(page: Page) {
         await route.fulfill({ status: 503, body: 'synthetic unavailable' });
         return;
       }
-      if (path.endsWith('/status_runs')) {
+      if (path.endsWith('/status_current')) {
         await route.fulfill({ json: [{ summary: summary() }] });
         return;
       }
@@ -89,7 +89,21 @@ async function fixture(page: Page) {
         return;
       }
       if (path.endsWith('/health-history.jsonl')) {
-        await route.fulfill({ body: '' });
+        await route.fulfill({
+          body: Array.from({ length: 14 }, (_, index) =>
+            JSON.stringify({
+              d: new Date(now.getTime() - index * 86400000).toISOString().slice(0, 10),
+              org_score: 0.5,
+              repos: 1,
+              compliant: 0,
+              by_check: {},
+              report: health(
+                'git-fixture-repo',
+                new Date(now.getTime() - index * 86400000).toISOString(),
+              ),
+            }),
+          ).join('\n'),
+        });
         return;
       }
       if (path.endsWith('/summary.json')) {
@@ -159,7 +173,7 @@ test('uses one health query for the current report and trend, without unused his
   const f = await fixture(page);
   await f.healthy();
   console.log('Initial snapshot reads:', JSON.stringify(f.calls));
-  expect(f.calls.filter((path) => path === 'status_runs')).toHaveLength(1);
+  expect(f.calls.filter((path) => path === 'status_current')).toHaveLength(1);
   expect(f.calls.filter((path) => path === 'health_runs')).toHaveLength(1);
   expect(f.calls).not.toContain('health_history');
   await expect(
@@ -189,7 +203,7 @@ test('a stalled primary read times out and falls back without reloading', async 
   const f = await fixture(page);
   f.mode.stallPrimary = true;
   await page.goto('/');
-  await expect.poll(() => f.calls.includes('status_runs')).toBe(true);
+  await expect.poll(() => f.calls.includes('status_current')).toBe(true);
   await page.clock.runFor(8001);
   await expect(page.getByText('Git fixture deployment', { exact: true })).toBeVisible();
   expect(f.calls).not.toContain('snapshot.json');
@@ -205,7 +219,7 @@ test('returning after a long absence marks old data stale before a slow refresh 
   await page.clock.runFor(21 * 60000);
   f.mode.stallAll = true;
   await f.hidden(false);
-  await expect.poll(() => f.calls.filter((path) => path === 'status_runs').length).toBe(2);
+  await expect.poll(() => f.calls.filter((path) => path === 'status_current').length).toBe(2);
   await expect(
     page.getByText('Status data is stale. Current state is not green.', { exact: true }),
   ).toBeVisible();
@@ -217,7 +231,7 @@ test('the entire status fallback chain ends within twenty seconds', async ({ pag
   const f = await fixture(page);
   f.mode.stallAll = true;
   await page.goto('/');
-  await expect.poll(() => f.calls.includes('status_runs')).toBe(true);
+  await expect.poll(() => f.calls.includes('status_current')).toBe(true);
   await page.clock.runFor(8001);
   await expect.poll(() => f.calls.includes('summary.json')).toBe(true);
   await page.clock.runFor(8001);
@@ -268,15 +282,18 @@ test('last loaded data survives total source failure and becomes stale', async (
   await f.verify();
 });
 
-test('Git fallback omits unused health history and retains its visible report', async ({
+test('Git fallback loads embedded health reports for a fourteen-sample sparkline', async ({
   page,
 }) => {
   const f = await fixture(page);
   f.mode.failSupabase = true;
   await page.goto('/');
   await expect(page.getByText('git-fixture-repo', { exact: true })).toBeVisible();
-  expect(f.calls).not.toContain('health-history.jsonl');
+  expect(f.calls.filter((path) => path === 'health-history.jsonl')).toHaveLength(1);
   expect(f.calls.filter((path) => path === 'health.json')).toHaveLength(1);
+  await expect(
+    page.getByRole('img', { name: 'git-fixture-repo standards trend with 14 samples.' }),
+  ).toBeVisible();
   await f.verify();
 });
 

@@ -76,6 +76,7 @@ export function historyLineFromReport(report: HealthReport, now: Date): HealthHi
     repos: report.repos.length,
     compliant: report.repos.filter((repo) => repo.fail.length === 0).length,
     by_check: byCheck,
+    report,
   };
 }
 

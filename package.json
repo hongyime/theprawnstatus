@@ -12,7 +12,6 @@
     "check:health": "tsx scripts/check-health.ts",
     "import:supabase": "tsx scripts/import-data-to-supabase.ts",
     "seed:data": "tsx scripts/seed-data-branch.ts",
-    "keepalive": "tsx scripts/keepalive.ts",
     "prepare:snapshot": "tsx scripts/prepare-snapshot.ts",
     "test": "vitest run",
     "test:browser": "playwright test",

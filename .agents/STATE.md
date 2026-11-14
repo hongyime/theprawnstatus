@@ -14,6 +14,6 @@ Next: pass hosted checks, merge and deploy the gateway-recovery fix, then observ
 
 The pg_net installation has a public-extension namespace advisor warning; pg_net 0.20.4 reports non-relocatable. Its objects and permissions need inspection before considering a move; do not drop it or delete retained operational evidence. No Edge secret setting was applied after HTTP 403; the unused request secret remains in Vault.
 
-## Reviewed workspace maintenance - 2026-09-27
+## Maintenance hardening - 2026-11-14
 
-Publish the reviewed portability and privacy maintenance from the current default branch, preserving concurrent upstream work and original workspace changes. Validation is limited to the documented offline fixtures and hosted checks; no live data job or deployment command was executed locally.
+Implemented the reviewed maintenance hardening: cleanup guard, collector normalization and forward migration, conflict recovery, tree-based Git health reads, enriched health history, dashboard efficiency, and obsolete keepalive removal. No live cleanup, migration application, or paused collector activation ran. Unit (109), lint, type, production-build, browser (27 fixture-configured cases), offline PowerShell guard, and isolated PostgreSQL/Deno/PostgREST collector contracts pass. Changes are ready for human review/commit.

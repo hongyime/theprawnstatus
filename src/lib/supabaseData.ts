@@ -62,7 +62,7 @@ export async function fetchLatestSummaryFromSupabase(signal?: AbortSignal): Prom
     order: 'generated_at.desc',
     limit: '1',
   });
-  const rows = await requestRows<StatusRunRow>('status_runs', query, signal);
+  const rows = await requestRows<StatusRunRow>('status_current', query, signal);
   const summary = rows[0]?.summary;
   if (summary === undefined) {
     throw new Error('Supabase status data is empty');

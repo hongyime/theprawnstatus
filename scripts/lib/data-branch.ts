@@ -142,7 +142,7 @@ export async function withDataBranch<T>(
     await git(['config', 'user.name', 'github-actions[bot]']);
     await git(['config', 'user.email', '41898282+github-actions[bot]@users.noreply.github.com']);
 
-    const value = await fn({ dir: worktree, git });
+    let value = await fn({ dir: worktree, git });
 
     await git(['add', '-A']);
     const status = await git(['status', '--porcelain']);
@@ -160,7 +160,20 @@ export async function withDataBranch<T>(
         if (attempt === 3) {
           throw error;
         }
-        await git(['pull', '--rebase', 'origin', branch]);
+        try {
+          await git(['pull', '--rebase', 'origin', branch]);
+        } catch {
+          await git(['rebase', '--abort']);
+          await git(['fetch', 'origin', branch]);
+          await git(['reset', '--hard', `origin/${branch}`]);
+          value = await fn({ dir: worktree, git });
+          await git(['add', '-A']);
+          const recovered = await git(['status', '--porcelain']);
+          if (recovered.stdout.trim() === '') {
+            return { value, committed: true, pushed: true };
+          }
+          await git(['commit', '--no-verify', '-m', options.commitMessage]);
+        }
       }
     }
 

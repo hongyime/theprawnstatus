@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import type { HealthReport } from '@shared/types';
 import { ageMinutes } from '@/lib/format';
 import { startVisiblePolling } from '@/lib/visiblePolling';
-import { preferLoaded, requestJson, REFRESH_TIMEOUT_MS, withDeadline } from '@/lib/request';
+import { preferLoaded, requestJson, requestText, REFRESH_TIMEOUT_MS, withDeadline } from '@/lib/request';
 import { fetchHealthSnapshotFromSupabase, hasSupabaseDataConfig } from '@/lib/supabaseData';
 
 const DATA_BASE =
@@ -21,11 +21,38 @@ export interface HealthDataState {
 }
 
 function isHealthReport(value: unknown): value is HealthReport {
+  const generatedAt = (value as HealthReport | null)?.generated_at;
   return (
     typeof value === 'object' &&
     value !== null &&
     (value as HealthReport).schema === 1 &&
-    Array.isArray((value as HealthReport).repos)
+    Array.isArray((value as HealthReport).repos) &&
+    (generatedAt === null ||
+      (typeof generatedAt === 'string' && Number.isFinite(Date.parse(generatedAt))))
+  );
+}
+
+function reportsFromHistory(content: string): HealthReport[] {
+  const reports = content.split(/\r?\n/).flatMap((line) => {
+    try {
+      const report = (JSON.parse(line) as { report?: unknown }).report;
+      return isHealthReport(report) && report.generated_at !== null ? [report] : [];
+    } catch {
+      return [];
+    }
+  });
+  const deduplicated = new Map<string, HealthReport>();
+  for (const report of reports) deduplicated.set(String(report.generated_at), report);
+  return [...deduplicated.values()].sort((a, b) =>
+    String(a.generated_at).localeCompare(String(b.generated_at)),
+  );
+}
+
+function combineReports(report: HealthReport, history: HealthReport[]): HealthReport[] {
+  const reports = new Map(history.map((item) => [String(item.generated_at), item]));
+  reports.set(String(report.generated_at), report);
+  return [...reports.values()].sort((a, b) =>
+    String(a.generated_at).localeCompare(String(b.generated_at)),
   );
 }
 
@@ -67,7 +94,13 @@ async function fetchLiveHealth(signal: AbortSignal): Promise<{
   }
 
   const report = await fetchJson(`${DATA_BASE}/health.json`, isHealthReport, signal);
-  return { report, reportHistory: [report] };
+  try {
+    const history = reportsFromHistory(await requestText(`${DATA_BASE}/health-history.jsonl`, signal));
+    return { report, reportHistory: combineReports(report, history) };
+  } catch {
+    signal.throwIfAborted();
+    return { report, reportHistory: [report] };
+  }
 }
 
 export function useHealthData(): HealthDataState {

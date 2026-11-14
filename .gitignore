@@ -9,7 +9,6 @@ coverage/
 !.env.example
 data-wt
 data-wt*/
-.keepalive
 
 .vercel
 

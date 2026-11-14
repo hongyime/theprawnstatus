@@ -71,6 +71,7 @@ export interface HealthHistoryLine {
   repos: number;
   compliant: number;
   by_check: Record<string, number>;
+  report?: HealthReport;
 }
 
 export interface TargetConfig {

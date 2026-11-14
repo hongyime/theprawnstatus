@@ -16,3 +16,5 @@
 
 - 2026-09-27: Documented platform-neutral npm and optional PowerShell 7 maintenance invocation. Cleanup remains an explicit remote operation; no service or cleanup ran.
 - 2026-09-27: Prepared reviewed portability/privacy changes on the current default branch with maintenance-only file selection and preserved original workspace state.
+- 2026-11-14: Maintenance hardening keeps the five-minute collector paused and makes no operational mutation; status-default compatibility is delivered only through a forward migration, while health-history enrichment stays additive so Supabase aggregate imports remain unchanged.
+- 2026-11-14: Verified the maintenance hardening offline with 109 unit tests, 27 browser cases, an isolated PostgreSQL/Deno/PostgREST contract stack, and the PowerShell cleanup guard; no production endpoint, deployment, migration, or paused collector was invoked.
