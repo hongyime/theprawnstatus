@@ -152,7 +152,7 @@ export async function withDataBranch<T>(
 
     await git(['commit', '--no-verify', '-m', options.commitMessage]);
 
-    for (let attempt = 1; attempt <= 3; attempt += 1) {
+    for (let attempt = 1; ; attempt += 1) {
       try {
         await git(['push', 'origin', branch]);
         return { value, committed: true, pushed: true };
@@ -177,7 +177,6 @@ export async function withDataBranch<T>(
       }
     }
 
-    return { value, committed: true, pushed: false };
   } finally {
     await removeWorktree(worktree, false);
   }

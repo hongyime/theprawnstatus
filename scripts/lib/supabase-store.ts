@@ -201,7 +201,7 @@ async function selectLatestRow<T>(table: string, column: string): Promise<T | nu
 }
 
 export async function readLatestSummaryFromSupabase(): Promise<Summary | null> {
-  const row = await selectLatestRow<StatusRunRow>('status_runs', 'summary');
+  const row = await selectLatestRow<StatusRunRow>('status_current', 'summary');
   const summary = row?.summary;
   return summary === undefined ? null : (summary as unknown as Summary);
 }

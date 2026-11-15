@@ -1,3 +1,9 @@
+## Scheduled reliability fixes - 2026-11-15
+
+- Implemented the approved maintenance corrections: non-recursive Git tree reads, pinned Vercel cleanup checkout, preview-only cleanup retention, direct `status_current` summary reads, the cron template placeholder guard, and removal of the unreachable data-branch return.
+- Local validation passed: 109 Vitest tests, lint, production build, diff check, Playwright browser test suite (27 cases passed), PowerShell cleanup test fixture (`cleanup-deployments.test.ps1` passed), and isolated PostgreSQL SQL/parity contracts (`sql_contract.py`, `projection_parity.py` passed). No remote service, deployment, migration, or paused collector was invoked.
+- All scheduled reliability items are fully validated locally. Next: commit and push changes when ready.
+
 ## Portability maintenance - 2026-09-27
 
 - Documented platform-neutral npm and optional PowerShell 7 maintenance invocation. Cleanup remains an explicit remote operation; no service or cleanup ran.

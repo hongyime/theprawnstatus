@@ -19,7 +19,7 @@ describe('latest Supabase snapshots', () => {
   });
 
   for (const [table, column, read] of [
-    ['status_runs', 'summary', readLatestSummaryFromSupabase],
+    ['status_current', 'summary', readLatestSummaryFromSupabase],
     ['health_runs', 'report', readLatestHealthFromSupabase],
   ] as const) {
     it(`${table} reads only the latest row even with extensive history`, async () => {

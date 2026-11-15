@@ -1,21 +1,33 @@
-# Offline fixture: projects without a production target must not list or delete deployments.
+# Offline fixture: preview-only projects retain their five newest deployments.
 $ErrorActionPreference = 'Stop'
 $env:VERCEL_TOKEN = 'fixture-token'
 $env:VERCEL_TEAM_ID = 'fixture-team'
 $requests = [System.Collections.Generic.List[string]]::new()
 $deletes = [System.Collections.Generic.List[string]]::new()
+$messages = [System.Collections.Generic.List[string]]::new()
+
+function Write-Host {
+    param([Parameter(ValueFromRemainingArguments = $true)][object[]]$Object)
+    $messages.Add(($Object -join ' '))
+}
 
 function Invoke-RestMethod {
     param([string]$Uri, [hashtable]$Headers, [int]$TimeoutSec)
     $requests.Add($Uri)
     if ($Uri -like '*v9/projects*') {
         return @{ projects = @(
-            @{ id = 'no-production'; name = 'No production'; targets = @{} },
-            @{ id = 'production'; name = 'Production'; targets = @{ production = @{ id = 'current' } } }
+            @{ id = 'no-production'; name = 'No production'; targets = @{} }
         ); pagination = @{} }
     }
-    if ($Uri -like '*projectId=production*') {
-        return @{ deployments = @(@{ uid = 'current'; state = 'READY'; createdAt = 0 }); pagination = @{} }
+    if ($Uri -like '*projectId=no-production*') {
+        return @{ deployments = @(
+            @{ uid = 'preview-1'; state = 'READY'; createdAt = 1 },
+            @{ uid = 'preview-2'; state = 'READY'; createdAt = 2 },
+            @{ uid = 'preview-3'; state = 'READY'; createdAt = 3 },
+            @{ uid = 'preview-4'; state = 'READY'; createdAt = 4 },
+            @{ uid = 'preview-5'; state = 'READY'; createdAt = 5 },
+            @{ uid = 'preview-6'; state = 'READY'; createdAt = 6 }
+        ); pagination = @{} }
     }
     throw "unexpected deployment list: $Uri"
 }
@@ -35,9 +47,16 @@ function Invoke-WebRequest {
 
 & (Join-Path $PSScriptRoot 'cleanup-deployments.ps1') -DryRun
 
-if ($requests | Where-Object { $_ -like '*projectId=no-production*' }) {
-    throw 'a project without targets.production.id listed deployments'
+if (-not ($requests | Where-Object { $_ -like '*projectId=no-production*' })) {
+    throw 'a project without targets.production.id did not list deployments'
 }
 if ($deletes.Count -ne 0) {
-    throw 'a project without targets.production.id made a delete decision'
+    throw 'a dry run made a delete request'
+}
+if (-not ($messages -contains 'No production: 6 total, keeping 5, deleting 1')) {
+    throw 'a preview-only project did not retain its five newest deployments'
+}
+$dryRunDeletes = @($messages | Where-Object { $_ -match '\[dry-run\] would delete' })
+if ($dryRunDeletes.Count -ne 1 -or $dryRunDeletes[0] -notmatch '\[dry-run\] would delete preview-1') {
+    throw 'a preview-only project did not dry-run deletion of only its oldest deployment'
 }

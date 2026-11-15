@@ -123,7 +123,7 @@ export class GithubClient {
 
   async getRootTree(repo: GithubRepo): Promise<GithubTree> {
     const tree = await this.request<GithubTree>(
-      `/repos/${this.options.org}/${repo.name}/git/trees/${encodeURIComponent(repo.default_branch)}?recursive=1`,
+      `/repos/${this.options.org}/${repo.name}/git/trees/${encodeURIComponent(repo.default_branch)}`,
     );
     if (tree === null) {
       throw new Error(`Missing default tree for ${repo.name}`);

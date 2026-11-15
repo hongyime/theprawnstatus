@@ -18,9 +18,12 @@ const repo = {
 describe('fetchOrgRepoFacts', () => {
   it('uses the root tree to avoid missing-content requests', async () => {
     const paths: string[] = [];
+    const urls: URL[] = [];
     const fetchImpl = vi.fn<typeof fetch>(async (input) => {
-      const path = new URL(String(input)).pathname;
+      const url = new URL(String(input));
+      const path = url.pathname;
       paths.push(path);
+      urls.push(url);
       if (path === '/orgs/test/repos') return Response.json([repo]);
       if (path === '/repos/test/fixture/git/trees/main') {
         return Response.json({
@@ -63,5 +66,6 @@ describe('fetchOrgRepoFacts', () => {
     expect(paths).not.toContain('/repos/test/fixture/readme');
     expect(paths).not.toContain('/repos/test/fixture/contents/NOTICE');
     expect(paths).not.toContain('/repos/test/fixture/contents/LICENSE.md');
+    expect(urls.find((url) => url.pathname === '/repos/test/fixture/git/trees/main')?.search).toBe('');
   });
 });

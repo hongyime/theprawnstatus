@@ -1,6 +1,12 @@
 -- Creates the reviewed jobs INACTIVE. Follow SCHEDULER.md before enabling.
 -- Existing observations are retained; credentials are resolved from Vault.
 begin;
+do $project_ref_guard$
+begin
+  if '<PROJECT_REF>' = '<' || 'PROJECT_REF>' then
+    raise exception 'Replace <PROJECT_REF> with your Supabase project ref';
+  end if;
+end $project_ref_guard$;
 select cron.schedule_in_database('status-uptime-5m','*/5 * * * *','do $status_job$
 declare v_limit bigint;
 begin

@@ -77,12 +77,11 @@ $totalKept = 0
 $totalErrors = 0
 
 foreach ($project in $projects) {
-    if (-not $project.targets -or -not $project.targets.production -or -not $project.targets.production.id) {
-        Write-Host "SKIP $($project.name): no production deployment"
-        continue
+    $productionId = $null
+    if ($project.targets -and $project.targets.production) {
+        $productionId = $project.targets.production.id
     }
 
-    $productionId = $project.targets.production.id
     $deployments = @(Get-AllDeployments -ProjectId $project.id)
 
     if ($deployments.Count -eq 0) {
